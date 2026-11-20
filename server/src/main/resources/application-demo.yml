@@ -11,6 +11,8 @@ spring:
     init:
       mode: always
       schema-locations: classpath:schema-demo.sql
+      # Windows 默认 GBK 会把中文种子数据读成乱码，强制按 UTF-8 读取
+      encoding: UTF-8
   h2:
     console:
       enabled: true
