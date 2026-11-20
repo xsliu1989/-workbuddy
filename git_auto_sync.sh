@@ -25,7 +25,8 @@ done
 
 log()  { printf '[auto-sync] %s\n' "$*"; }
 step() { printf '[auto-sync][STEP] %s\n' "$*"; }
-cmd()  { printf '[auto-sync][CMD] %s\n' "$*" >&2; }
+# CMD 行输出到 stdout，与 STEP/文件清单同流，保证被完整捕获并回显给用户。
+cmd()  { printf '[auto-sync][CMD] %s\n' "$*"; }
 run()  { cmd "$*"; "$@"; }
 fail() { printf '[auto-sync][ERROR] %s\n' "$*" >&2; exit 1; }
 
