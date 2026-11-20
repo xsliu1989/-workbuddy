@@ -7,6 +7,9 @@ EXPECTED_REMOTE="https://github.com/xsliu1989/-workbuddy.git"
 REMOTE_BRANCH="main"
 MAX_BYTES=$((50 * 1024 * 1024))
 
+# fd 3 指向真实 stdout：CMD 行由此输出，既不会被 $(...) 命令替换捕获，也会出现在调用方的标准输出里。
+exec 3>&1
+
 REPO="$DEFAULT_REPO"
 MESSAGE=""
 
@@ -25,8 +28,8 @@ done
 
 log()  { printf '[auto-sync] %s\n' "$*"; }
 step() { printf '[auto-sync][STEP] %s\n' "$*"; }
-# CMD 行输出到 stdout，与 STEP/文件清单同流，保证被完整捕获并回显给用户。
-cmd()  { printf '[auto-sync][CMD] %s\n' "$*"; }
+# CMD 行输出到 fd 3（真实 stdout）：可见、可回显，且不会被 $(...) 捕获污染返回值。
+cmd()  { printf '[auto-sync][CMD] %s\n' "$*" >&3; }
 run()  { cmd "$*"; "$@"; }
 fail() { printf '[auto-sync][ERROR] %s\n' "$*" >&2; exit 1; }
 
