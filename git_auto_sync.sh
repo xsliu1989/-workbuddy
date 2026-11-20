@@ -25,7 +25,7 @@ done
 
 log()  { printf '[auto-sync] %s\n' "$*"; }
 step() { printf '[auto-sync][STEP] %s\n' "$*"; }
-cmd()  { printf '[auto-sync][CMD] %s\n' "$*"; }
+cmd()  { printf '[auto-sync][CMD] %s\n' "$*" >&2; }
 run()  { cmd "$*"; "$@"; }
 fail() { printf '[auto-sync][ERROR] %s\n' "$*" >&2; exit 1; }
 
