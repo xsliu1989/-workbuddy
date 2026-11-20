@@ -47,11 +47,13 @@ public class WebConfig implements WebMvcConfigurer {
                 );
     }
 
-    /** 把磁盘上传目录映射为 /uploads/**，与上传接口返回的相对 URL 对应 */
+    /** 把上传目录映射为 /uploads/**，与上传接口返回的相对 URL 对应
+     *  同时挂载 classpath:/static/uploads/ —— 样例图随代码打包，避免不同启动目录导致 404 */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         Path root = fileStorageService.root();
         String location = "file:" + root.toString().replace('\\', '/') + "/";
-        registry.addResourceHandler("/uploads/**").addResourceLocations(location);
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations(location, "classpath:/static/uploads/");
     }
 }

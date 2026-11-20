@@ -22,9 +22,9 @@ Local branch `master` maps to remote branch `main`; always push with the explici
 
 ### Step 1: Check for changes
 
-Run `git -C "F:/codex-lvyi" status --short`.
+Run `git -C "F:/codex-lvyi" status --short` and `git -C "F:/codex-lvyi" rev-list --count origin/main..HEAD`.
 
-If the output is empty, report "无改动，跳过提交与推送" and stop. Do not create empty commits.
+If the working tree is clean and the ahead count is 0, report "无改动且无待推送提交，跳过提交与推送" and stop. Do not create empty commits. If the tree is clean but there are pending local commits, let the script push them and list their files; do not report "无改动".
 
 ### Step 2: Run the sync script
 
@@ -42,7 +42,7 @@ If no `--message` is provided, the script generates a summary from the changed f
 
 ### Step 3: Interpret the result
 
-- On success: report the short commit hash, number of files changed, and that the push to `origin/main` was verified.
+- On success: report the short commit hash, number of files changed, and that the push to `origin/main` was verified. Always include the `本次上传的文件` list printed by the script in the final reply to the user, with each file path and its status (新增/修改/删除/重命名). Never summarize the list as just a count.
 - On `无改动`: report that nothing was pushed.
 - On `敏感文件` or `大文件` errors: do not bypass, do not use `--force`, and do not edit the checks. Tell the user exactly which files were blocked and ask whether to remove them or add a justified ignore rule.
 - On push failure: report that the local commit is preserved, include the error, and ask the user before any manual recovery.
@@ -63,4 +63,4 @@ Run `git -C "F:/codex-lvyi" status --short --branch` and include the tracking st
 
 ### scripts/git_auto_sync.sh
 
-Deterministic sync script. It validates the remote URL and repo path, stages changes, scans staged files for sensitive filenames and credential-like content, rejects files larger than 50 MB, commits with the supplied or generated message, pushes to `origin/main` (retrying with HTTP/1.1, an OpenSSL SSL backend, and then once after a rebase if the remote moved or the connection drops), and verifies that the remote HEAD matches the local commit. If the remote cannot be queried because of a network error after a successful push, the script reports a warning instead of a failure.
+Deterministic sync script. It validates the remote URL and repo path, stages changes, scans staged files for sensitive filenames and credential-like content, rejects files larger than 50 MB, commits with the supplied or generated message, pushes to `origin/main` (retrying with HTTP/1.1, an OpenSSL SSL backend, and then once after a rebase if the remote moved or the connection drops), verifies that the remote HEAD matches the local commit, and finally prints every uploaded file with its change status. If the remote cannot be queried because of a network error after a successful push, the script reports a warning instead of a failure.
