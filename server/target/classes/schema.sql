@@ -364,11 +364,12 @@ INSERT INTO freight_template (region, base_fee, per_kg_fee) VALUES
   ('西南', 12.00, 3.00), ('西北', 15.00, 3.50), ('全国', 12.00, 3.00);
 
 -- 示例商品
-INSERT INTO product (name, kind, price, weight_gram, stock, description) VALUES
-  ('环保帆布袋', 'SALE', 29.90, 200, 100, '可循环使用，公益义卖'),
-  ('公益文化衫', 'SALE', 59.00, 300, 50, '绿益公益限定款'),
-  ('暖冬棉衣(申领)', 'CLAIM', 0.00, 800, 30, '免费提供给有需要的人，仅付运费'),
-  ('学习用品包(申领)', 'CLAIM', 0.00, 500, 20, '免费申领，仅付运费');
+-- 示例商品（图片为样例图，位于 uploads/samples/，对外通过 /api/uploads/samples/** 访问）
+INSERT INTO product (name, kind, price, weight_gram, stock, cover_url, images, description) VALUES
+  ('环保帆布袋', 'SALE', 29.90, 200, 100, '/uploads/samples/product-canvas-bag.png', '/uploads/samples/product-canvas-bag.png', '<p>可循环使用，公益义卖。</p><p><img src="/uploads/samples/product-canvas-bag.png" style="max-width:100%"></p>'),
+  ('公益文化衫', 'SALE', 59.00, 300, 50, '/uploads/samples/product-tshirt.png', '/uploads/samples/product-tshirt.png', '<p>绿益公益限定款，舒适纯棉。</p><p><img src="/uploads/samples/product-tshirt.png" style="max-width:100%"></p>'),
+  ('暖冬棉衣(申领)', 'CLAIM', 0.00, 800, 30, '/uploads/samples/product-winter-coat.png', '/uploads/samples/product-winter-coat.png', '<p>免费提供给有需要的人，仅付运费。</p><p><img src="/uploads/samples/product-winter-coat.png" style="max-width:100%"></p>'),
+  ('学习用品包(申领)', 'CLAIM', 0.00, 500, 20, '/uploads/samples/product-stationery.png', '/uploads/samples/product-stationery.png', '<p>免费申领，仅付运费。含笔记本、铅笔、橡皮与笔袋。</p><p><img src="/uploads/samples/product-stationery.png" style="max-width:100%"></p>');
 
 -- 示例活动
 INSERT INTO activity (title, location, description, quota, start_time, end_time, status) VALUES

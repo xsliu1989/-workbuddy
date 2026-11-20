@@ -1,0 +1,31 @@
+# 演示模式配置：H2 内存库，无需 MySQL 即可启动体验全部业务闭环
+# 启动：mvnw spring-boot:run -Dspring-boot.run.profiles=demo
+# 数据为内存态，服务停止后重置。
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:greenyi_demo;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema-demo.sql
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+
+greenyi:
+  integration:
+    wechat-pay-mock: true
+    ai-mock: true
+    oss-mock: true
+
+logging:
+  level:
+    com.greenyi.charity: info
