@@ -16,6 +16,8 @@ public class Donation {
     private String description;
     private String photos;
     private String deliveryType;
+    /** 用户选择的邮寄地址ID（donation_address.id），仅 MAIL 时有值 */
+    private Long deliveryAddressId;
     private String status;
     @TableField(fill = FieldFill.INSERT)
     private Date createdAt;

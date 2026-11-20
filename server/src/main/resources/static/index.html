@@ -148,6 +148,7 @@
     <div class="nav-item" data-page="products"><span class="nav-icon">▣</span> 商品管理</div>
     <div class="nav-item" data-page="activities"><span class="nav-icon">◉</span> 活动管理</div>
     <div class="nav-item" data-page="workbench"><span class="nav-icon">♻</span> 物资评估</div>
+    <div class="nav-item" data-page="donationSettings"><span class="nav-icon">✉</span> 捐赠设置</div>
     <div class="nav-item" data-page="claims"><span class="nav-icon">▧</span> 申领管理</div>
     <div class="nav-item" data-page="orders"><span class="nav-icon">▥</span> 订单管理</div>
     <div class="nav-group">系统</div>
@@ -361,7 +362,7 @@ function doLogout() { goLogin(); showToast('已退出登录', true); }
 /* ==================== 导航 ==================== */
 var PAGE_TITLES = {
   dashboard: '数据看板', contents: '内容管理', products: '商品管理', activities: '活动管理',
-  workbench: '物资评估', claims: '申领管理', orders: '订单管理', configs: '规则配置', audit: 'AI 审计'
+  workbench: '物资评估', donationSettings: '捐赠设置', claims: '申领管理', orders: '订单管理', configs: '规则配置', audit: 'AI 审计'
 };
 document.querySelectorAll('.nav-item').forEach(function (el) {
   el.addEventListener('click', function () {
@@ -377,7 +378,7 @@ function loadPage(p) {
   c.innerHTML = '<div class="loading">加载中...</div>';
   var fn = {
     dashboard: renderDashboard, contents: renderContents, products: renderProducts,
-    activities: renderActivities, workbench: renderWorkbench, claims: renderClaims,
+    activities: renderActivities, workbench: renderWorkbench, donationSettings: renderDonationSettings, claims: renderClaims,
     orders: renderOrders, configs: renderConfigs, audit: renderAudit
   }[p];
   if (fn) fn(c);
@@ -753,6 +754,84 @@ function assessDonation(id) {
         closeModal(); loadPage('workbench');
       }).catch(function (e) { showToast(e.message, false); });
     });
+}
+
+/* ==================== 捐赠设置：邮寄接收地址 ==================== */
+function renderDonationSettings(c) {
+  api('/admin/donation-addresses').then(function (d) {
+    var arr = d || [];
+    var rows = arr.map(function (x) {
+      var full = [x.province, x.city, x.district, x.detail].filter(Boolean).join(' ');
+      var on = x.enabled === 1 || x.enabled === true;
+      return '<tr><td>' + esc(x.id) + '</td><td>' + esc(x.receiver || '-') + '</td><td>' + esc(x.phone || '-') + '</td>'
+        + '<td>' + esc(full || '-') + (x.postalCode ? '（' + esc(x.postalCode) + '）' : '') + '</td>'
+        + '<td>' + esc(x.remark || '-') + '</td>'
+        + '<td>' + esc(x.sortNo == null ? 0 : x.sortNo) + '</td>'
+        + '<td>' + (on ? '<span class="tag tag-green">启用</span>' : '<span class="tag">停用</span>') + '</td>'
+        + '<td><button class="btn" onclick="editDonationAddress(' + x.id + ')">编辑</button> '
+        + '<button class="btn" onclick="toggleDonationAddress(' + x.id + ',' + (on ? 0 : 1) + ')">' + (on ? '停用' : '启用') + '</button> '
+        + '<button class="btn" onclick="deleteDonationAddress(' + x.id + ')">删除</button></td></tr>';
+    }).join('');
+    c.innerHTML = pageHead('捐赠设置', '捐赠物资快递邮寄的接收地址；小程序选择「快递邮寄」时供用户选择')
+      + '<div class="panel" style="padding:12px 16px;margin-bottom:14px"><button class="btn btn-primary" onclick="editDonationAddress()">新增邮寄地址</button>'
+      + '<span style="margin-left:12px;color:#6b7280;font-size:13px">启用的地址按排序号展示给用户，可维护多个收货点。</span></div>'
+      + tablePanel(['ID','收件人','联系电话','详细地址','说明','排序','状态','操作'], rows, arr.length, '暂无邮寄地址，点「新增邮寄地址」创建');
+  }).catch(function (e) { c.innerHTML = errPanel(e); });
+}
+function editDonationAddress(id) {
+  var done = function (a) {
+    a = a || {};
+    var on = a.id == null ? true : (a.enabled === 1 || a.enabled === true);
+    var body = '<div style="max-height:64vh;overflow-y:auto;padding-right:6px">'
+      + '<div style="display:flex;gap:12px">'
+      + '<div style="flex:1"><label class="form-label">收件人 *</label><input id="daReceiver" class="form-input" value="' + esc(a.receiver || '') + '" placeholder="如：绿益公益接收站"></div>'
+      + '<div style="flex:1"><label class="form-label">联系电话 *</label><input id="daPhone" class="form-input" value="' + esc(a.phone || '') + '" placeholder="如：0571-88886666"></div></div>'
+      + '<div style="display:flex;gap:12px">'
+      + '<div style="flex:1"><label class="form-label">省</label><input id="daProvince" class="form-input" value="' + esc(a.province || '') + '"></div>'
+      + '<div style="flex:1"><label class="form-label">市</label><input id="daCity" class="form-input" value="' + esc(a.city || '') + '"></div>'
+      + '<div style="flex:1"><label class="form-label">区/县</label><input id="daDistrict" class="form-input" value="' + esc(a.district || '') + '"></div></div>'
+      + '<label class="form-label">详细地址 *</label><input id="daDetail" class="form-input" value="' + esc(a.detail || '') + '" placeholder="街道、门牌号、楼层、接收处">'
+      + '<div style="display:flex;gap:12px">'
+      + '<div style="flex:1"><label class="form-label">邮政编码</label><input id="daPostal" class="form-input" value="' + esc(a.postalCode || '') + '"></div>'
+      + '<div style="flex:1"><label class="form-label">排序号（越小越靠前）</label><input id="daSort" class="form-input" type="number" value="' + esc(a.sortNo == null ? 0 : a.sortNo) + '"></div></div>'
+      + '<label class="form-label">说明</label><input id="daRemark" class="form-input" value="' + esc(a.remark || '') + '" placeholder="如：工作日 9:00-17:00 接收，仅接收衣物类">'
+      + '<label class="form-label">状态</label><select id="daEnabled" class="form-input">'
+      + '<option value="1"' + (on ? ' selected' : '') + '>启用</option><option value="0"' + (!on ? ' selected' : '') + '>停用</option></select>'
+      + '</div>';
+    showModal(id ? '编辑邮寄地址' : '新增邮寄地址', body, function () {
+      var v = function (i) { return document.getElementById(i).value.trim(); };
+      if (!v('daReceiver') || !v('daPhone') || !v('daDetail')) { showToast('收件人、联系电话、详细地址为必填', false); return; }
+      api('/admin/donation-address', { method: 'POST', body: {
+        id: id || null,
+        receiver: v('daReceiver'), phone: v('daPhone'),
+        province: v('daProvince'), city: v('daCity'), district: v('daDistrict'),
+        detail: v('daDetail'), postalCode: v('daPostal'), remark: v('daRemark'),
+        sortNo: Number(v('daSort')) || 0, enabled: Number(v('daEnabled'))
+      } }).then(function () { showToast('已保存', true); closeModal(); loadPage('donationSettings'); })
+        .catch(function (e) { showToast(e.message || '保存失败', false); });
+    });
+  };
+  if (id) api('/admin/donation-addresses').then(function (arr) {
+    done((arr || []).filter(function (x) { return x.id === id; })[0]);
+  }).catch(function (e) { showToast(e.message, false); });
+  else done(null);
+}
+function toggleDonationAddress(id, enabled) {
+  api('/admin/donation-addresses').then(function (arr) {
+    var a = (arr || []).filter(function (x) { return x.id === id; })[0];
+    if (!a) return;
+    a.enabled = enabled;
+    api('/admin/donation-address', { method: 'POST', body: a }).then(function () {
+      showToast(enabled ? '已启用' : '已停用', true); loadPage('donationSettings');
+    }).catch(function (e) { showToast(e.message, false); });
+  });
+}
+function deleteDonationAddress(id) {
+  confirmBox('删除邮寄地址', '确定删除该邮寄地址吗？已提交的捐赠单不受影响。', function () {
+    api('/admin/donation-address/' + id, { method: 'DELETE' }).then(function () {
+      showToast('已删除', true); closeModal(); loadPage('donationSettings');
+    }).catch(function (e) { showToast(e.message || '删除失败', false); });
+  });
 }
 
 /* ==================== 申领管理 ==================== */

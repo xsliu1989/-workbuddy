@@ -25,8 +25,10 @@ Page({
             { label: '快递邮寄', value: 'MAIL' }
         ],
         deliveryIndex: 0,
-        estimateState: 'idle',
-        estimate: null,
+        isMail: false,
+        mailAddresses: [],
+        mailAddressIndex: -1,
+        selectedAddress: null,
         submitting: false
     },
 
@@ -35,19 +37,42 @@ Page({
 
     initPage(done) {
         this.setData({ viewState: 'loading' });
-        app.ensureLogin().then(() => {
-            this.setData({ viewState: 'ready' });
-            if (done) done();
-        }).catch(() => {
-            this.setData({ viewState: 'error' });
-            if (done) done();
-        });
+        const finish = () => { if (done) done(); };
+        app.ensureLogin().then(() => api(app).donationAddresses().catch(() => []))
+            .then(list => {
+                const mailAddresses = (list || []).map(a => this.decorateAddress(a));
+                this.setData({ viewState: 'ready', mailAddresses: mailAddresses });
+                finish();
+            }).catch(() => {
+                this.setData({ viewState: 'error' });
+                finish();
+            });
     },
 
     retryLoad() { this.initPage(); },
 
+    decorateAddress(a) {
+        const full = [a.province, a.city, a.district, a.detail].filter(Boolean).join('');
+        return Object.assign({}, a, {
+            fullAddress: full,
+            pickerLabel: (a.receiver || '') + ' · ' + full
+        });
+    },
+
     onCategoryChange(e) { this.setData({ categoryIndex: e.detail.value }); },
-    onDeliveryChange(e) { this.setData({ deliveryIndex: e.detail.value }); },
+
+    onDeliveryChange(e) {
+        const idx = Number(e.detail.value);
+        const type = this.data.deliveryTypes[idx];
+        this.setData({ deliveryIndex: idx, isMail: !!(type && type.value === 'MAIL') });
+    },
+
+    onMailAddressChange(e) {
+        const idx = Number(e.detail.value);
+        const a = this.data.mailAddresses[idx];
+        this.setData({ mailAddressIndex: idx, selectedAddress: a || null });
+    },
+
     onQuantityInput(e) { this.setData({ quantity: e.detail.value }); },
     onDescInput(e) { this.setData({ description: e.detail.value }); },
 
@@ -93,26 +118,6 @@ Page({
         wx.previewImage({ current: src, urls: this.data.photoList });
     },
 
-    doEstimate() {
-        const d = this.data;
-        if (!d.description || !d.description.trim()) {
-            wx.showToast({ icon: 'none', title: '请先填写物资描述' });
-            return;
-        }
-        this.setData({ estimateState: 'loading' });
-        api(app).donationEstimate({
-            category: d.categories[d.categoryIndex].value,
-            description: d.description
-        }).then(res => {
-            this.setData({ estimate: res || {}, estimateState: 'ready' });
-        }).catch(err => {
-            this.setData({ estimateState: 'error' });
-            wx.showToast({ icon: 'none', title: err.message });
-        });
-    },
-
-    retryEstimate() { this.doEstimate(); },
-
     submitDonation() {
         const d = this.data;
         if (!d.description || !d.description.trim()) {
@@ -124,6 +129,10 @@ Page({
             wx.showToast({ icon: 'none', title: '数量至少为 1' });
             return;
         }
+        if (d.isMail && !d.selectedAddress) {
+            wx.showToast({ icon: 'none', title: '请选择邮寄接收地址' });
+            return;
+        }
         if (d.submitting) return;
         this.setData({ submitting: true });
         wx.showLoading({ title: '提交中' });
@@ -132,7 +141,8 @@ Page({
             quantity: quantity,
             description: d.description,
             photos: d.photos,
-            deliveryType: d.deliveryTypes[d.deliveryIndex].value
+            deliveryType: d.deliveryTypes[d.deliveryIndex].value,
+            deliveryAddressId: d.isMail && d.selectedAddress ? d.selectedAddress.id : null
         }).then(res => {
             wx.hideLoading();
             this.setData({ submitting: false });
@@ -146,7 +156,7 @@ Page({
                     if (r.confirm) {
                         wx.navigateTo({ url: '/pages/donation-list/donation-list' });
                     } else {
-                        this.setData({ description: '', photos: '', photoList: [], quantity: 1, estimate: null, estimateState: 'idle' });
+                        this.setData({ description: '', photos: '', photoList: [], quantity: 1 });
                     }
                 }
             });

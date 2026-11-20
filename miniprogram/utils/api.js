@@ -45,6 +45,7 @@ function api(app) {
         // 捐赠
         donationSubmit: (data) => call('/donation/submit', 'POST', data),
         donationMine: () => call('/donation/mine', 'GET'),
+        donationAddresses: () => call('/donation/addresses', 'GET'),
         donationEstimate: (data) => call('/donation/estimate', 'POST', data),
 
         // 商城/购物车/订单

@@ -1,7 +1,21 @@
 .picker-value { display: flex; align-items: center; }
-.estimate-box { padding: 16rpx 0 8rpx; }
-.estimate-num { font-size: 48rpx; font-weight: 700; display: block; margin-top: 8rpx; }
-.estimate-split { width: 2rpx; background: #f0f1f2; margin: 0 24rpx; }
+
+/* 顶部「我的捐赠记录」入口 */
+.record-entry { display: flex; align-items: center; gap: 20rpx; margin-bottom: 20rpx; padding: 26rpx 24rpx; }
+.record-icon { width: 72rpx; height: 72rpx; border-radius: 18rpx; background: #e6f4ed; color: #2e7d5b; font-size: 38rpx; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.record-title { font-size: 32rpx; font-weight: 700; color: #1f2937; }
+.record-sub { font-size: 24rpx; color: #8a9099; margin-top: 8rpx; }
+.record-arrow { font-size: 44rpx; color: #b6bcc4; line-height: 1; }
+.entry-hover { background: #f4f8f6; }
+
+/* 快递邮寄地址 */
+.mail-section { margin-top: 8rpx; padding-top: 8rpx; border-top: 2rpx solid #f0f1f2; }
+.mail-picker { color: #2e7d5b; }
+.address-detail { margin-top: 16rpx; padding: 20rpx; background: #f6faf8; border-radius: 14rpx; font-size: 26rpx; color: #4e535b; }
+.address-row { display: flex; align-items: flex-start; line-height: 1.6; margin-bottom: 6rpx; }
+.address-label { width: 90rpx; color: #8a9099; flex-shrink: 0; }
+.address-remark { margin-top: 10rpx; padding-top: 12rpx; border-top: 2rpx solid #e5ece8; color: #8a9099; font-size: 24rpx; line-height: 1.6; }
+.mail-empty { margin-top: 16rpx; padding: 24rpx; background: #fff8f0; border-radius: 14rpx; color: #a16a2e; font-size: 26rpx; line-height: 1.6; }
 
 /* 物资照片上传 */
 .photo-grid { display: flex; flex-wrap: wrap; gap: 16rpx; margin-top: 4rpx; }

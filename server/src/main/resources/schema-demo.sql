@@ -69,11 +69,31 @@ CREATE TABLE donation (
   description VARCHAR(512),
   photos TEXT,
   delivery_type VARCHAR(16) NOT NULL DEFAULT 'OFFLINE',
+  delivery_address_id BIGINT DEFAULT NULL,
   status VARCHAR(16) NOT NULL DEFAULT 'PENDING_RECEIVE',
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE (donation_no)
+);
+
+-- 捐赠物资邮寄接收地址
+DROP TABLE IF EXISTS donation_address;
+CREATE TABLE donation_address (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  receiver VARCHAR(64) NOT NULL,
+  phone VARCHAR(32) NOT NULL,
+  province VARCHAR(32),
+  city VARCHAR(32),
+  district VARCHAR(32),
+  detail VARCHAR(256) NOT NULL,
+  postal_code VARCHAR(16),
+  remark VARCHAR(256),
+  enabled TINYINT NOT NULL DEFAULT 1,
+  sort_no INT NOT NULL DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id)
 );
 
 DROP TABLE IF EXISTS assessment;
@@ -325,6 +345,10 @@ INSERT INTO sys_config (config_key, config_value, description) VALUES
   ('point.max.discount.ratio', '0.3', '单笔订单积分抵扣上限比例 - 草案'),
   ('claim.per.user.limit', '3', '每人限领件数 - 草案'),
   ('ai.chat.confidence.threshold', '0.75', 'AI客服低置信转人工阈值 - 草案');
+
+INSERT INTO donation_address (receiver, phone, province, city, district, detail, postal_code, remark, enabled, sort_no) VALUES
+  ('绿益公益接收站', '0571-88886666', '浙江省', '杭州市', '西湖区', '文三路 100 号公益大厦 1 楼捐赠接收处', '310012', '工作日 9:00-17:00 接收，寄出后请填写捐赠单号', 1, 1),
+  ('绿益公益仓储中心', '0571-88887777', '浙江省', '杭州市', '余杭区', '仓前街道公益物流园 B 区 3 号库', '311100', '仅接收衣物被褥、图书文具，大件请先联系', 1, 2);
 
 INSERT INTO admin_user (username, password, real_name, role_code) VALUES
   ('admin', '$2a$10$7EqJtq98hPqEX7fNZaFWoOHiYcD1N5fD2ePqM1oGk.OnQ7WjJ0QxG', '系统管理员', 'ADMIN'),

@@ -47,6 +47,10 @@ public class DonationService {
         d.setDescription(str(body.get("description")));
         d.setPhotos(str(body.get("photos")));
         d.setDeliveryType(str(body.get("deliveryType")) == null ? "OFFLINE" : str(body.get("deliveryType")));
+        if (body.get("deliveryAddressId") != null) {
+            try { d.setDeliveryAddressId(Long.valueOf(body.get("deliveryAddressId").toString())); }
+            catch (NumberFormatException ignored) { }
+        }
         d.setStatus("PENDING_RECEIVE");
         donationMapper.insert(d);
         return d;

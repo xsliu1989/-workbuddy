@@ -40,6 +40,8 @@ public class WebConfig implements WebMvcConfigurer {
                         // 活动浏览（游客可读）
                         "/activity/list",
                         "/activity/*",
+                        // 捐赠邮寄地址（游客可读，供捐赠表单展示）
+                        "/donation/addresses",
                         // 其他公开接口
                         "/certificate/verify",
                         "/pay/notify/**",

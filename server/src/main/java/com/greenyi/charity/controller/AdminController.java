@@ -26,6 +26,7 @@ public class AdminController {
     @Autowired private ClaimService claimService;
     @Autowired private OrderService orderService;
     @Autowired private DonationService donationService;
+    @Autowired private com.greenyi.charity.mapper.DonationAddressMapper donationAddressMapper;
     @Autowired private AiServiceFacade aiFacade;
     @Autowired private SysConfigMapper configMapper;
 
@@ -148,6 +149,39 @@ public class AdminController {
         requireAdmin();
         Long assessorId = UserContext.get().getUserId();
         return Result.ok(donationService.assess(id, body, assessorId));
+    }
+
+    // ---------- 捐赠设置：邮寄接收地址 ----------
+    @GetMapping("/donation-addresses")
+    public Result<List<DonationAddress>> donationAddresses() {
+        requireAdmin();
+        return Result.ok(donationAddressMapper.selectList(
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<DonationAddress>()
+                        .orderByAsc(DonationAddress::getSortNo)
+                        .orderByAsc(DonationAddress::getId)));
+    }
+
+    @PostMapping("/donation-address")
+    public Result<?> saveDonationAddress(@RequestBody DonationAddress a) {
+        requireAdmin();
+        if (a.getReceiver() == null || !org.springframework.util.StringUtils.hasText(a.getReceiver()))
+            throw new BusinessException(400, "请填写收件人");
+        if (a.getPhone() == null || !org.springframework.util.StringUtils.hasText(a.getPhone()))
+            throw new BusinessException(400, "请填写联系电话");
+        if (a.getDetail() == null || !org.springframework.util.StringUtils.hasText(a.getDetail()))
+            throw new BusinessException(400, "请填写详细地址");
+        if (a.getEnabled() == null) a.setEnabled(1);
+        if (a.getSortNo() == null) a.setSortNo(0);
+        if (a.getId() == null) donationAddressMapper.insert(a);
+        else donationAddressMapper.updateById(a);
+        return Result.ok(a);
+    }
+
+    @DeleteMapping("/donation-address/{id}")
+    public Result<?> deleteDonationAddress(@PathVariable Long id) {
+        requireAdmin();
+        donationAddressMapper.deleteById(id);
+        return Result.ok();
     }
 
     // ---------- 规则配置（FA-073） ----------

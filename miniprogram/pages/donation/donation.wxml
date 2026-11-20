@@ -10,6 +10,16 @@
     </view>
 
     <block wx:else>
+        <!-- 常用功能入口前置：用户一进来就能看到捐赠记录 -->
+        <view class="card record-entry" bindtap="goRecords" hover-class="entry-hover">
+            <view class="record-icon">▤</view>
+            <view class="grow">
+                <view class="record-title">我的捐赠记录</view>
+                <view class="record-sub">查看捐赠单、评估进度与公益积分</view>
+            </view>
+            <text class="record-arrow">›</text>
+        </view>
+
         <view class="card">
             <view class="title-lg">物资捐赠</view>
             <view class="subtitle mt8">填写物资信息，提交后由评估员接收并估值</view>
@@ -47,51 +57,41 @@
             </view>
 
             <view class="form-item">
-                <view class="form-label">交投方式</view>
+                <view class="form-label required">交投方式</view>
                 <picker mode="selector" range="{{deliveryTypes}}" range-key="label" value="{{deliveryIndex}}" bindchange="onDeliveryChange">
                     <view class="form-input picker-value">{{deliveryTypes[deliveryIndex].label}}</view>
                 </picker>
             </view>
-        </view>
 
-        <view class="card">
-            <view class="between">
-                <view class="title">AI 估值参考</view>
-                <button class="ghost-btn" size="mini" bindtap="doEstimate">试算估值</button>
-            </view>
-
-            <view wx:if="{{estimateState === 'idle'}}" class="state-box">
-                <text class="state-icon">○</text>
-                <text class="state-text">填写描述后点击「试算估值」获取参考区间</text>
-            </view>
-            <view wx:elif="{{estimateState === 'loading'}}" class="state-box">
-                <view class="spinner"></view>
-                <text class="state-text">正在估算…</text>
-            </view>
-            <view wx:elif="{{estimateState === 'error'}}" class="state-box">
-                <text class="state-icon">!</text>
-                <text class="state-text">估值失败</text>
-                <button class="ghost-btn mt16" size="mini" bindtap="retryEstimate">重试</button>
-            </view>
-            <view wx:else class="estimate-box">
-                <view class="row">
-                    <view class="grow center col">
-                        <text class="text-muted">参考下限</text>
-                        <text class="estimate-num">¥{{estimate.low}}</text>
+            <!-- 快递邮寄：展示管理端维护的接收地址 -->
+            <view wx:if="{{isMail}}" class="mail-section">
+                <view class="form-label required">邮寄接收地址</view>
+                <block wx:if="{{mailAddresses.length}}">
+                    <picker mode="selector" range="{{mailAddresses}}" range-key="pickerLabel" value="{{mailAddressIndex}}" bindchange="onMailAddressChange">
+                        <view class="form-input picker-value mail-picker">{{mailAddressIndex >= 0 ? mailAddresses[mailAddressIndex].pickerLabel : '请选择邮寄地址'}}</view>
+                    </picker>
+                    <view wx:if="{{selectedAddress}}" class="address-detail">
+                        <view class="address-row">
+                            <text class="address-label">收件人</text>
+                            <text class="grow">{{selectedAddress.receiver}}　{{selectedAddress.phone}}</text>
+                        </view>
+                        <view class="address-row">
+                            <text class="address-label">地址</text>
+                            <text class="grow">{{selectedAddress.fullAddress}}</text>
+                        </view>
+                        <view wx:if="{{selectedAddress.postalCode}}" class="address-row">
+                            <text class="address-label">邮编</text>
+                            <text class="grow">{{selectedAddress.postalCode}}</text>
+                        </view>
+                        <view wx:if="{{selectedAddress.remark}}" class="address-remark">{{selectedAddress.remark}}</view>
                     </view>
-                    <view class="estimate-split"></view>
-                    <view class="grow center col">
-                        <text class="text-muted">参考上限</text>
-                        <text class="estimate-num text-green">¥{{estimate.high}}</text>
-                    </view>
+                </block>
+                <view wx:else class="mail-empty">
+                    <text>暂无可用的邮寄地址，请选择「线下交投点」或「上门取件」</text>
                 </view>
-                <view class="divider"></view>
-                <view class="subtitle">{{estimate.note}}</view>
-                <view class="text-muted mt8">{{estimate.hint}}</view>
             </view>
         </view>
 
         <button class="primary-btn" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submitDonation">提交捐赠</button>
-        <button class="ghost-btn mt16" bindtap="goRecords">查看我的捐赠记录</button>
     </block>
 </view>

@@ -76,7 +76,8 @@ CREATE TABLE donation (
   quantity      INT          NOT NULL DEFAULT 1,
   description   VARCHAR(512) DEFAULT NULL,
   photos        TEXT         DEFAULT NULL COMMENT '照片URL,JSON数组',
-  delivery_type VARCHAR(16)  NOT NULL DEFAULT 'OFFLINE' COMMENT 'OFFLINE线下/MAIL邮寄',
+  delivery_type VARCHAR(16)  NOT NULL DEFAULT 'OFFLINE' COMMENT 'OFFLINE线下/PICKUP上门/MAIL邮寄',
+  delivery_address_id BIGINT DEFAULT NULL COMMENT '用户选择的邮寄地址ID(donation_address.id)',
   status        VARCHAR(16)  NOT NULL DEFAULT 'PENDING_RECEIVE' COMMENT 'PENDING_RECEIVE/RECEIVED/ASSESSED/BOOKED/REVIEWING/CLOSED',
   created_at    DATETIME     DEFAULT CURRENT_TIMESTAMP,
   updated_at    DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -84,6 +85,26 @@ CREATE TABLE donation (
   UNIQUE KEY uk_donation_no (donation_no),
   KEY idx_user_status (user_id, status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='物资捐赠单';
+
+-- 捐赠物资邮寄接收地址：管理端维护，小程序选择「快递邮寄」时展示
+DROP TABLE IF EXISTS donation_address;
+CREATE TABLE donation_address (
+  id          BIGINT       NOT NULL AUTO_INCREMENT,
+  receiver    VARCHAR(64)  NOT NULL COMMENT '收件人',
+  phone       VARCHAR(32)  NOT NULL COMMENT '联系电话',
+  province    VARCHAR(32)  DEFAULT NULL,
+  city        VARCHAR(32)  DEFAULT NULL,
+  district    VARCHAR(32)  DEFAULT NULL,
+  detail      VARCHAR(256) NOT NULL COMMENT '详细地址',
+  postal_code VARCHAR(16)  DEFAULT NULL COMMENT '邮政编码',
+  remark      VARCHAR(256) DEFAULT NULL COMMENT '说明，如仅接收衣物类',
+  enabled     TINYINT      NOT NULL DEFAULT 1 COMMENT '1启用 0停用',
+  sort_no     INT          NOT NULL DEFAULT 0 COMMENT '排序，越小越靠前',
+  created_at  DATETIME     DEFAULT CURRENT_TIMESTAMP,
+  updated_at  DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_enabled_sort (enabled, sort_no)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='捐赠物资邮寄地址';
 
 DROP TABLE IF EXISTS assessment;
 CREATE TABLE assessment (
@@ -352,6 +373,11 @@ INSERT INTO sys_config (config_key, config_value, description) VALUES
   ('point.max.discount.ratio','0.3',  '单笔订单积分抵扣上限比例 - 草案'),
   ('claim.per.user.limit',  '3',      '每人限领件数 - 草案'),
   ('ai.chat.confidence.threshold','0.75','AI客服低置信转人工阈值 - 草案');
+
+-- 示例邮寄地址（管理端可增删改；正式地址请在管理端「捐赠设置」中维护）
+INSERT INTO donation_address (receiver, phone, province, city, district, detail, postal_code, remark, enabled, sort_no) VALUES
+  ('绿益公益接收站', '0571-88886666', '浙江省', '杭州市', '西湖区', '文三路 100 号公益大厦 1 楼捐赠接收处', '310012', '工作日 9:00-17:00 接收，寄出后请填写捐赠单号', 1, 1),
+  ('绿益公益仓储中心', '0571-88887777', '浙江省', '杭州市', '余杭区', '仓前街道公益物流园 B 区 3 号库', '311100', '仅接收衣物被褥、图书文具，大件请先联系', 1, 2);
 
 -- 示例管理员（密码均为 BCrypt 加密的 admin123 / assess123，仅开发演示用）
 INSERT INTO admin_user (username, password, real_name, role_code) VALUES
