@@ -1,0 +1,43 @@
+<view class="container">
+    <view wx:if="{{viewState === 'loading'}}" class="card center" style="padding:80rpx">
+        <view class="spinner"></view><text class="state-text">加载中…</text>
+    </view>
+    <view wx:elif="{{viewState === 'error'}}" class="card center" style="padding:80rpx">
+        <text class="state-icon">!</text><text class="state-text">{{errorMsg}}</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="retry">重试</button>
+    </view>
+
+    <!-- 列表模式：首页“更多”进入 -->
+    <block wx:elif="{{mode === 'list'}}">
+        <view class="card article-list-item" wx:for="{{contents}}" wx:key="id" data-id="{{item.id}}" bindtap="openItem">
+            <view class="article-cover" wx:if="{{item.coverUrl}}">
+                <image src="{{item.coverUrl}}" mode="aspectFill" class="cover-img"></image>
+            </view>
+            <view class="grow">
+                <view class="title">{{item.title}}</view>
+                <view class="subtitle mt8">{{item.kind === 'VIDEO' ? '短视频' : '图文'}} · 绿益公益</view>
+            </view>
+        </view>
+        <view wx:if="{{contents.length === 0}}" class="card center" style="padding:60rpx">
+            <text class="state-icon">○</text><text class="state-text">暂无内容</text>
+        </view>
+    </block>
+
+    <!-- 详情模式 -->
+    <block wx:else>
+        <view class="card article-detail">
+            <view class="title-lg">{{content.title}}</view>
+            <view class="subtitle mt8">{{timeText}} · {{isVideo ? '短视频' : '图文'}} · 绿益公益</view>
+            <view class="divider"></view>
+            <view class="d-cover" wx:if="{{isVideo && content.videoUrl}}">
+                <video src="{{content.videoUrl}}" controls show-fullscreen-btn class="video"></video>
+            </view>
+            <image wx:elif="{{content.coverUrl}}" src="{{content.coverUrl}}" mode="aspectFill" class="article-cover-img"></image>
+            <view class="body-text">{{content.body}}</view>
+        </view>
+        <view class="row between share-bar">
+            <text class="text-muted">已被分享 {{shareCount}} 次</text>
+            <button class="ghost-btn" size="mini" bindtap="share">分享内容</button>
+        </view>
+    </block>
+</view>

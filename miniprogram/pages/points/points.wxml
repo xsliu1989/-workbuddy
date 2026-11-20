@@ -1,0 +1,49 @@
+<view class="container">
+    <view wx:if="{{viewState === 'loading'}}" class="state-box">
+        <view class="spinner"></view>
+        <text class="state-text">加载中…</text>
+    </view>
+
+    <view wx:elif="{{viewState === 'error'}}" class="state-box">
+        <text class="state-icon">!</text>
+        <text class="state-text">加载失败，请检查网络</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="loadData">重试</button>
+    </view>
+
+    <block wx:else>
+        <view class="points-hero">
+            <view class="hero-label">可用积分</view>
+            <view class="hero-balance">{{account.balance || 0}}</view>
+            <view class="hero-hint">100 积分 = 1 元 · 结算时可抵扣现金（运费除外）</view>
+            <view class="hero-stats">
+                <view class="hero-stat"><text class="hero-stat-num">{{account.totalEarned || 0}}</text><text class="hero-stat-label">累计获得</text></view>
+                <view class="hero-stat"><text class="hero-stat-num">{{account.totalUsed || 0}}</text><text class="hero-stat-label">累计使用</text></view>
+            </view>
+        </view>
+
+        <view class="section-title mt24 mb16">积分明细</view>
+        <view class="filter-bar">
+            <view class="filter-item {{typeFilter === item.key ? 'active' : ''}}" wx:for="{{filters}}" wx:key="key" data-type="{{item.key}}" bindtap="onFilter">{{item.label}}</view>
+        </view>
+
+        <view class="card ledger-card">
+            <view wx:if="{{ledgers.length === 0}}" class="state-box">
+                <text class="state-icon">○</text>
+                <text class="state-text">暂无积分流水</text>
+            </view>
+            <view class="ledger-item" wx:for="{{ledgers}}" wx:key="id">
+                <view class="ledger-icon {{item.isGain ? 'gain' : 'use'}}">{{item.isGain ? '+' : '-'}}</view>
+                <view class="grow">
+                    <view class="between">
+                        <text class="ledger-title">{{item.typeLabel}} · {{item.remark}}</text>
+                        <text class="ledger-amount {{item.isGain ? 'text-green' : 'text-red'}}">{{item.amountText}}</text>
+                    </view>
+                    <view class="between mt8">
+                        <text class="text-muted">{{item.createdAt}}</text>
+                        <text class="text-muted">余额 {{item.balanceAfter}}</text>
+                    </view>
+                </view>
+            </view>
+        </view>
+    </block>
+</view>

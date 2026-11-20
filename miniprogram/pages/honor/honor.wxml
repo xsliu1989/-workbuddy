@@ -1,0 +1,94 @@
+<view class="container">
+    <view wx:if="{{viewState === 'loading'}}" class="state-box">
+        <view class="spinner"></view>
+        <text class="state-text">加载中…</text>
+    </view>
+
+    <view wx:elif="{{viewState === 'error'}}" class="state-box">
+        <text class="state-icon">!</text>
+        <text class="state-text">加载失败，请检查网络</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="loadData">重试</button>
+    </view>
+
+    <block wx:else>
+        <view class="honor-hero">
+            <view class="row">
+                <view class="level-medal">{{levelMark}}</view>
+                <view class="grow">
+                    <view class="hero-title">我的荣誉档案</view>
+                    <view class="hero-level mt8">当前等级 · {{levelLabel}}</view>
+                </view>
+            </view>
+            <view class="hero-progress mt24">{{progressText}}</view>
+        </view>
+
+        <view class="card">
+            <view class="section-title mb16">公益数据</view>
+            <view class="stat-grid">
+                <view class="stat-cell">
+                    <text class="stat-num">{{info.totalAssessValue || 0}}</text>
+                    <text class="stat-label">累计评估值</text>
+                </view>
+                <view class="stat-cell">
+                    <text class="stat-num">{{info.donationCount || 0}}</text>
+                    <text class="stat-label">捐赠次数</text>
+                </view>
+                <view class="stat-cell">
+                    <text class="stat-num">{{info.volunteerHours || 0}}</text>
+                    <text class="stat-label">志愿时长(分钟)</text>
+                </view>
+                <view class="stat-cell">
+                    <text class="stat-num">{{info.activityCount || 0}}</text>
+                    <text class="stat-label">活动参与</text>
+                </view>
+            </view>
+        </view>
+
+        <view class="section-title mt24 mb16">我的证书</view>
+        <view class="card">
+            <view class="cert-group-title row">
+                <text class="group-bar honor-bar"></text>
+                <text class="title">荣誉激励类</text>
+                <text class="text-muted">{{honorCerts.length}} 张</text>
+            </view>
+            <view wx:if="{{honorCerts.length === 0}}" class="empty-tip">暂无荣誉激励类证书</view>
+            <view class="cert-item" wx:for="{{honorCerts}}" wx:key="id">
+                <view class="row">
+                    <view class="cert-badge honor-badge">誉</view>
+                    <view class="grow">
+                        <view class="cert-title">{{item.title}}</view>
+                        <view class="text-muted mt8">证书编号 {{item.certNo}}</view>
+                    </view>
+                </view>
+                <view class="divider"></view>
+                <view class="between">
+                    <text class="text-muted">{{item.holderName}} · {{item.issuedAt}}</text>
+                    <text class="verify-link" data-no="{{item.certNo}}" bindtap="goVerify">验真 ›</text>
+                </view>
+            </view>
+        </view>
+
+        <view class="card">
+            <view class="cert-group-title row">
+                <text class="group-bar official-bar"></text>
+                <text class="title">官方资质类</text>
+                <text class="text-muted">{{officialCerts.length}} 张</text>
+            </view>
+            <view wx:if="{{officialCerts.length === 0}}" class="empty-tip">暂无官方资质类证书</view>
+            <view class="cert-item" wx:for="{{officialCerts}}" wx:key="id">
+                <view class="row">
+                    <view class="cert-badge official-badge">官</view>
+                    <view class="grow">
+                        <view class="cert-title">{{item.title}}</view>
+                        <view class="text-muted mt8">证书编号 {{item.certNo}}</view>
+                    </view>
+                </view>
+                <view class="divider"></view>
+                <view class="between">
+                    <text class="text-muted">{{item.holderName}} · {{item.issuedAt}}</text>
+                    <text class="verify-link" data-no="{{item.certNo}}" bindtap="goVerify">验真 ›</text>
+                </view>
+            </view>
+        </view>
+    </block>
+</view>

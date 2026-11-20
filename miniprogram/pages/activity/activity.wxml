@@ -1,0 +1,51 @@
+<view class="container">
+    <view class="between head-bar">
+        <text class="title-lg">{{tab === 'list' ? '志愿活动' : '我的报名'}}</text>
+        <view wx:if="{{tab === 'list'}}" class="mine-entry" data-tab="mine" bindtap="switchTab">我的报名 ›</view>
+        <view wx:else class="mine-entry" data-tab="list" bindtap="switchTab">‹ 活动列表</view>
+    </view>
+
+    <view wx:if="{{viewState === 'loading'}}" class="card center" style="padding:60rpx">
+        <view class="spinner"></view><text class="state-text">加载中…</text>
+    </view>
+    <view wx:elif="{{viewState === 'error'}}" class="card center" style="padding:60rpx">
+        <text class="state-icon">!</text><text class="state-text">{{errorMsg}}</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="retry">重试</button>
+    </view>
+    <block wx:else>
+        <block wx:if="{{tab === 'list'}}">
+            <view class="card activity-card" wx:for="{{activities}}" wx:key="id" data-id="{{item.id}}" bindtap="openDetail">
+                <view class="a-cover" wx:if="{{item.coverUrl}}"><image src="{{item.coverUrl}}" mode="aspectFill" class="cover-img"></image></view>
+                <view class="grow">
+                    <view class="row between">
+                        <text class="title a-title">{{item.title}}</text>
+                        <text class="tag {{item.status === 'FINISHED' ? 'tag-warn' : ''}}">{{item.statusText}}</text>
+                    </view>
+                    <view class="subtitle mt8">时间：{{item.startText}} 起</view>
+                    <view class="subtitle mt8">地点：{{item.location}}</view>
+                    <view class="row between mt8">
+                        <text class="text-muted">名额 {{item.signedCount || 0}}/{{item.quota}}</text>
+                        <text class="text-green">查看详情 ›</text>
+                    </view>
+                </view>
+            </view>
+            <view wx:if="{{activities.length === 0}}" class="card center" style="padding:60rpx">
+                <text class="state-icon">○</text><text class="state-text">暂无志愿活动</text>
+            </view>
+        </block>
+        <block wx:else>
+            <view class="card" wx:for="{{signups}}" wx:key="id">
+                <view class="between">
+                    <text class="title a-title">{{item.activityTitle}}</text>
+                    <text class="tag">{{item.statusText}}</text>
+                </view>
+                <view class="text-muted mt8">报名人：{{item.personText}}</view>
+                <view class="text-muted mt8" wx:if="{{item.hoursMinutes}}">服务时长：{{item.hoursMinutes}} 分钟</view>
+                <view class="text-muted mt8" wx:else data-id="{{item.activityId}}" bindtap="openDetail">查看活动详情 ›</view>
+            </view>
+            <view wx:if="{{signups.length === 0}}" class="card center" style="padding:60rpx">
+                <text class="state-icon">○</text><text class="state-text">暂无报名记录</text>
+            </view>
+        </block>
+    </block>
+</view>

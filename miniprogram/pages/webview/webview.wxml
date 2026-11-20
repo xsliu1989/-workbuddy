@@ -1,0 +1,10 @@
+<view class="wrap">
+    <web-view wx:if="{{url && !error}}" src="{{url}}" binderror="onLoadError"></web-view>
+    <view wx:else class="fallback">
+        <text class="fb-icon">▤</text>
+        <text class="fb-title">文章暂时无法在小程序内打开</text>
+        <text class="fb-desc">请确认公众号已与小程序关联，或复制下方链接在浏览器中查看</text>
+        <text class="fb-url">{{url}}</text>
+        <button class="ghost-btn mt24" bindtap="copyUrl">复制链接</button>
+    </view>
+</view>

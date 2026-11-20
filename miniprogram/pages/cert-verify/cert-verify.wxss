@@ -1,0 +1,19 @@
+.section-title { font-size: 30rpx; font-weight: 600; color: #1f2329; }
+
+.result-card { padding: 32rpx; }
+.result-head { display: flex; align-items: center; padding: 16rpx 0; }
+.result-icon { width: 88rpx; height: 88rpx; border-radius: 50%; color: #fff; font-size: 48rpx; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-right: 24rpx; flex-shrink: 0; }
+.result-head.valid .result-icon { background: #2e7d5b; }
+.result-head.invalid .result-icon { background: #e34d4d; }
+.result-title { font-size: 34rpx; font-weight: 700; }
+.result-head.valid .result-title { color: #2e7d5b; }
+.result-head.invalid .result-title { color: #e34d4d; }
+.result-sub { font-size: 26rpx; color: #8a9099; }
+
+.info-row { display: flex; justify-content: space-between; align-items: center; padding: 18rpx 0; border-bottom: 2rpx solid #f0f1f2; }
+.info-row:last-of-type { border-bottom: none; }
+.info-label { font-size: 26rpx; color: #8a9099; flex-shrink: 0; }
+.info-value { font-size: 28rpx; color: #1f2329; text-align: right; margin-left: 24rpx; word-break: break-all; }
+
+.tips-card { margin-top: 24rpx; }
+.tip-line { font-size: 26rpx; color: #4e535b; line-height: 1.9; }

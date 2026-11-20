@@ -1,0 +1,22 @@
+.points-hero { background: linear-gradient(135deg,#14b8a6,#0d9488); border-radius: 24rpx; padding: 40rpx 32rpx; color: #fff; }
+.hero-label { font-size: 26rpx; opacity: 0.85; }
+.hero-balance { font-size: 84rpx; font-weight: 700; line-height: 1.2; margin-top: 8rpx; }
+.hero-hint { font-size: 22rpx; opacity: 0.85; margin-top: 8rpx; }
+.hero-stats { display: flex; margin-top: 32rpx; padding-top: 24rpx; border-top: 2rpx solid rgba(255,255,255,0.2); }
+.hero-stat { display: flex; flex-direction: column; width: 50%; }
+.hero-stat-num { font-size: 32rpx; font-weight: 600; }
+.hero-stat-label { font-size: 22rpx; opacity: 0.8; margin-top: 6rpx; }
+
+.section-title { font-size: 30rpx; font-weight: 600; color: #1f2329; }
+.filter-bar { display: flex; background: #fff; border-radius: 20rpx; padding: 12rpx; margin-bottom: 24rpx; }
+.filter-item { flex: 1; text-align: center; padding: 14rpx 0; font-size: 26rpx; color: #8a9099; border-radius: 14rpx; }
+.filter-item.active { background: #eaf5ef; color: #2e7d5b; font-weight: 600; }
+
+.ledger-card { padding: 8rpx 28rpx; }
+.ledger-item { display: flex; align-items: center; padding: 24rpx 0; border-bottom: 2rpx solid #f0f1f2; }
+.ledger-item:last-child { border-bottom: none; }
+.ledger-icon { width: 64rpx; height: 64rpx; border-radius: 50%; color: #fff; font-size: 36rpx; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-right: 20rpx; flex-shrink: 0; }
+.ledger-icon.gain { background: #2e7d5b; }
+.ledger-icon.use { background: #e34d4d; }
+.ledger-title { font-size: 28rpx; color: #1f2329; font-weight: 500; }
+.ledger-amount { font-size: 30rpx; font-weight: 700; }

@@ -1,0 +1,49 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/donation/donation",
+    "pages/mall/mall",
+    "pages/activity/activity",
+    "pages/mine/mine",
+    "pages/donation-list/donation-list",
+    "pages/cart/cart",
+    "pages/checkout/checkout",
+    "pages/claim/claim",
+    "pages/claim-order/claim-order",
+    "pages/activity-detail/activity-detail",
+    "pages/honor/honor",
+    "pages/cert-verify/cert-verify",
+    "pages/points/points",
+    "pages/article/article",
+    "pages/address/address",
+    "pages/orders/orders",
+    "pages/order-detail/order-detail",
+    "pages/login/login",
+    "pages/product-detail/product-detail",
+    "pages/webview/webview"
+  ],
+  "window": {
+    "navigationBarTitleText": "绿益公益",
+    "navigationBarBackgroundColor": "#2e7d5b",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f7fa",
+    "backgroundTextStyle": "light",
+    "enablePullDownRefresh": false
+  },
+  "tabBar": {
+    "color": "#8a9099",
+    "selectedColor": "#2e7d5b",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页" },
+      { "pagePath": "pages/donation/donation", "text": "捐赠" },
+      { "pagePath": "pages/mall/mall", "text": "公益商城" },
+      { "pagePath": "pages/activity/activity", "text": "活动" },
+      { "pagePath": "pages/mine/mine", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

@@ -1,0 +1,43 @@
+<view class="container">
+    <view class="between mb16">
+        <text class="title-lg">捐赠记录</text>
+        <text class="text-muted">共 {{list.length}} 笔</text>
+    </view>
+
+    <view wx:if="{{viewState === 'loading'}}" class="card center state-box">
+        <view class="spinner"></view>
+        <text class="state-text">加载中…</text>
+    </view>
+    <view wx:elif="{{viewState === 'error'}}" class="card center state-box">
+        <text class="state-icon">!</text>
+        <text class="state-text">加载失败</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="retryLoad">重试</button>
+    </view>
+    <block wx:else>
+        <view wx:if="{{list.length === 0}}" class="card center state-box">
+            <text class="state-icon">○</text>
+            <text class="state-text">还没有捐赠记录</text>
+            <button class="ghost-btn mt16" size="mini" bindtap="goDonate">去捐赠</button>
+        </view>
+
+        <view class="card record-card" wx:for="{{list}}" wx:key="id">
+            <view class="between">
+                <text class="subtitle">单号 {{item.donationNo}}</text>
+                <text class="{{item.badgeClass}}">{{item.statusLabel}}</text>
+            </view>
+            <view class="divider"></view>
+            <view class="row">
+                <view class="grow">
+                    <view class="title">{{item.category}} × {{item.quantity}}</view>
+                    <view class="text-muted mt8">{{item.createdAt}}</view>
+                </view>
+                <view class="col right">
+                    <text class="text-muted">估值</text>
+                    <text class="value-text">{{item.valueText}}</text>
+                </view>
+            </view>
+        </view>
+
+        <button wx:if="{{list.length > 0}}" class="ghost-btn mt24" bindtap="goDonate">继续捐赠</button>
+    </block>
+</view>

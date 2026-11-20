@@ -1,0 +1,13 @@
+.picker-value { display: flex; align-items: center; }
+.estimate-box { padding: 16rpx 0 8rpx; }
+.estimate-num { font-size: 48rpx; font-weight: 700; display: block; margin-top: 8rpx; }
+.estimate-split { width: 2rpx; background: #f0f1f2; margin: 0 24rpx; }
+
+/* 物资照片上传 */
+.photo-grid { display: flex; flex-wrap: wrap; gap: 16rpx; margin-top: 4rpx; }
+.photo-item { position: relative; width: 160rpx; height: 160rpx; }
+.photo-thumb { width: 160rpx; height: 160rpx; border-radius: 12rpx; background: #f0f2f5; }
+.photo-remove { position: absolute; top: -8rpx; right: -8rpx; width: 40rpx; height: 40rpx; line-height: 36rpx; text-align: center; border-radius: 50%; background: rgba(0,0,0,0.6); color: #fff; font-size: 30rpx; }
+.photo-add { width: 160rpx; height: 160rpx; border: 2rpx dashed #c8d4cd; border-radius: 12rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; }
+.photo-add-icon { font-size: 56rpx; color: #2e7d5b; line-height: 1; }
+.photo-add-text { font-size: 22rpx; color: #8a9099; margin-top: 8rpx; }

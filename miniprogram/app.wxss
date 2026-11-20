@@ -1,0 +1,61 @@
+page {
+    min-height: 100%;
+    background: #f5f7fa;
+    color: #1f2329;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+}
+
+button {
+    border-radius: 12rpx;
+}
+
+/* ---------- 通用工具类 ---------- */
+.container { box-sizing: border-box; padding: 24rpx; }
+.card { box-sizing: border-box; background: #fff; border-radius: 20rpx; padding: 28rpx; margin-bottom: 24rpx; box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.03); }
+.row { display: flex; align-items: center; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.col { display: flex; flex-direction: column; }
+.center { display: flex; align-items: center; justify-content: center; text-align: center; }
+.wrap { flex-wrap: wrap; }
+.grow { flex: 1; }
+
+.title-lg { font-size: 40rpx; font-weight: 700; color: #1f2329; }
+.title { font-size: 32rpx; font-weight: 600; color: #1f2329; }
+.subtitle { font-size: 26rpx; color: #8a9099; }
+.text-green { color: #2e7d5b; }
+.text-red { color: #e34d4d; }
+.text-muted { color: #8a9099; font-size: 24rpx; }
+.mt8 { margin-top: 8rpx; } .mt16 { margin-top: 16rpx; } .mt24 { margin-top: 24rpx; }
+.mb16 { margin-bottom: 16rpx; }
+
+.primary-btn {
+    background: #2e7d5b; color: #fff; font-size: 30rpx; font-weight: 600;
+    border-radius: 44rpx; padding: 8rpx 0; line-height: 2.2;
+}
+.primary-btn::after { border: none; }
+.ghost-btn {
+    background: #fff; color: #2e7d5b; font-size: 28rpx;
+    border: 2rpx solid #2e7d5b; border-radius: 44rpx; line-height: 2.2;
+}
+
+/* 表单 */
+.form-item { display: flex; flex-direction: column; padding: 20rpx 0; border-bottom: 2rpx solid #f0f1f2; }
+.form-label { font-size: 28rpx; color: #4e535b; margin-bottom: 12rpx; }
+.form-input {
+    font-size: 30rpx; color: #1f2329; background: #f7f8fa;
+    border-radius: 12rpx; padding: 16rpx 20rpx; min-height: 44rpx;
+}
+.form-textarea { font-size: 30rpx; color: #1f2329; background: #f7f8fa; border-radius: 12rpx; padding: 16rpx 20rpx; width: 100%; min-height: 160rpx; }
+.required::before { content: '*'; color: #e34d4d; margin-right: 6rpx; }
+
+/* 状态 */
+.state-box { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80rpx 32rpx; }
+.state-icon { font-size: 72rpx; color: #c9cdd4; }
+.state-text { font-size: 28rpx; color: #8a9099; margin-top: 20rpx; }
+.spinner { width: 44rpx; height: 44rpx; border: 6rpx solid #e6f2ec; border-top-color: #2e7d5b; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 标签 */
+.tag { display: inline-block; font-size: 22rpx; padding: 6rpx 16rpx; border-radius: 24rpx; background: #eaf5ef; color: #2e7d5b; }
+.tag-warn { background: #fff3e0; color: #d97706; }
+.divider { height: 2rpx; background: #f0f1f2; margin: 16rpx 0; }

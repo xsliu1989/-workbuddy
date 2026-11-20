@@ -1,0 +1,62 @@
+<view class="container">
+    <view class="between mb16">
+        <text class="title-lg">购物车</text>
+        <text class="text-muted">共 {{items.length}} 件商品</text>
+    </view>
+
+    <view wx:if="{{viewState === 'loading'}}" class="card center state-box">
+        <view class="spinner"></view>
+        <text class="state-text">加载中…</text>
+    </view>
+    <view wx:elif="{{viewState === 'error'}}" class="card center state-box">
+        <text class="state-icon">!</text>
+        <text class="state-text">加载失败</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="retryLoad">重试</button>
+    </view>
+    <block wx:else>
+        <view wx:if="{{items.length === 0}}" class="card center state-box">
+            <text class="state-icon">○</text>
+            <text class="state-text">购物车还是空的</text>
+            <button class="ghost-btn mt16" size="mini" bindtap="goMall">去逛逛</button>
+        </view>
+
+        <view class="card" wx:for="{{items}}" wx:key="id">
+            <view class="row">
+                <view class="checkbox {{item.checked ? 'checked' : ''}}" data-id="{{item.id}}" bindtap="onToggleSelect">
+                    <text wx:if="{{item.checked}}">✓</text>
+                </view>
+                <view class="cart-img">
+                    <image wx:if="{{item.coverUrl}}" src="{{item.coverUrl}}" mode="aspectFill" class="img"></image>
+                    <view wx:else class="img img-ph">图</view>
+                </view>
+                <view class="grow cart-info">
+                    <view class="product-name">{{item.name}}</view>
+                    <view class="text-muted mt8">库存 {{item.stock}} · 小计 ¥{{item.lineText}}</view>
+                    <view class="between mt8">
+                        <text class="price">¥{{item.price}}</text>
+                        <view class="stepper">
+                            <view class="step-btn" data-id="{{item.id}}" data-delta="-1" bindtap="onChangeQty">−</view>
+                            <text class="step-num">{{item.quantity}}</text>
+                            <view class="step-btn" data-id="{{item.id}}" data-delta="1" bindtap="onChangeQty">＋</view>
+                        </view>
+                    </view>
+                </view>
+                <view class="del-btn" data-id="{{item.id}}" bindtap="onRemove">×</view>
+            </view>
+        </view>
+
+        <view wx:if="{{items.length > 0}}" style="height:120rpx"></view>
+    </block>
+
+    <view wx:if="{{viewState === 'ready' && items.length > 0}}" class="checkout-bar">
+        <view class="checkbox {{allSelected ? 'checked' : ''}}" bindtap="onToggleAll">
+            <text wx:if="{{allSelected}}">✓</text>
+        </view>
+        <text class="all-label" bindtap="onToggleAll">全选</text>
+        <view class="grow total-box">
+            <view><text class="text-muted">合计</text></view>
+            <text class="total-num">¥{{totalText}}</text>
+        </view>
+        <button class="primary-btn checkout-btn" bindtap="goCheckout">去结算({{selectedCount}})</button>
+    </view>
+</view>

@@ -1,0 +1,75 @@
+<view class="container">
+    <view wx:if="{{viewState === 'loading'}}" class="card center state-box">
+        <view class="spinner"></view>
+        <text class="state-text">结算信息加载中…</text>
+    </view>
+    <view wx:elif="{{viewState === 'error'}}" class="card center state-box">
+        <text class="state-icon">!</text>
+        <text class="state-text">{{errorMsg}}</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="retryLoad">重试</button>
+    </view>
+
+    <block wx:else>
+        <view class="card">
+            <view class="between">
+                <view class="title">收货地址</view>
+                <text class="text-green" bindtap="goAddress">管理/新增 ›</text>
+            </view>
+            <view wx:if="{{addresses.length === 0}}" class="empty-address" bindtap="goAddress">
+                <text class="state-icon">＋</text>
+                <text class="state-text">暂无地址，点击添加收货地址</text>
+            </view>
+            <block wx:else>
+                <view class="address-row {{addressId == item.id ? 'active' : ''}}" wx:for="{{addresses}}" wx:key="id" data-id="{{item.id}}" bindtap="onAddressTap">
+                    <view class="radio {{addressId == item.id ? 'on' : ''}}">
+                        <text wx:if="{{addressId == item.id}}">✓</text>
+                    </view>
+                    <view class="grow">
+                        <view class="row">
+                            <text class="bold">{{item.receiver}}</text>
+                            <text class="subtitle">{{item.phone}}</text>
+                        </view>
+                        <view class="text-muted mt8">{{item.province}} {{item.city}} {{item.district}} {{item.detail}}</view>
+                    </view>
+                    <text wx:if="{{item.isDefault === 1}}" class="tag">默认</text>
+                </view>
+            </block>
+        </view>
+
+        <view class="card">
+            <view class="title">积分抵扣</view>
+            <view class="form-item">
+                <view class="form-label">使用积分（可用 {{preview.discount.balance}}，最多可抵扣 {{preview.discount.usablePoints}}）</view>
+                <view class="row">
+                    <input class="form-input grow" type="number" value="{{requestPoints}}" bindinput="onPointsInput" bindblur="onPointsBlur" placeholder="100 积分=1 元，留空则尽量抵扣" />
+                    <button class="mini-link" size="mini" bindtap="useAllPoints">全部使用</button>
+                    <button class="mini-link" size="mini" bindtap="clearPoints">清空</button>
+                </view>
+            </view>
+            <view wx:if="{{preview.discount.belowThreshold}}" class="warn-text">使用积分需不少于 {{preview.discount.minUse}} 分</view>
+        </view>
+
+        <view class="card">
+            <view class="title mb16">费用明细</view>
+            <view class="between fee-row">
+                <text class="subtitle">商品金额</text>
+                <text>¥{{preview.goodsAmount}}</text>
+            </view>
+            <view class="between fee-row">
+                <text class="subtitle">运费</text>
+                <text>¥{{preview.freightAmount}}</text>
+            </view>
+            <view class="between fee-row">
+                <text class="subtitle">积分抵扣</text>
+                <text class="text-green">-¥{{preview.discountAmount}}</text>
+            </view>
+            <view class="divider"></view>
+            <view class="between">
+                <text class="title">实付款</text>
+                <text class="pay-amount">¥{{preview.payAmount}}</text>
+            </view>
+        </view>
+
+        <button class="primary-btn" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submitOrder">提交订单并支付</button>
+    </block>
+</view>

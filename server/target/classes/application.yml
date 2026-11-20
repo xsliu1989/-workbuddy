@@ -1,0 +1,58 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: greenyi-charity
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 凭据通过环境变量注入，避免明文入库。见 README.md 的启动说明。
+    url: ${DB_URL:jdbc:mysql://192.168.18.131:3306/greenyi_charity?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: root
+    password: root1234
+  jackson:
+    time-zone: Asia/Shanghai
+    date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non_null
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.greenyi.charity.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+# 业务配置（草案值，与 schema.sql sys_config 一致，启动时可覆盖）
+greenyi:
+  jwt:
+    secret: ${JWT_SECRET:greenyi-charity-dev-secret-change-me-in-prod}
+    expire-hours: 72
+  admin:
+    # 小程序端模拟登录时默认 openid 前缀（仅在未配置微信 app-id 时生效）
+    mock-openid-prefix: mock-openid-
+  wechat:
+    # 微信小程序登录凭证：填入后启用真实 openid 绑定，留空则使用 mock 登录
+    # 在微信公众平台 → 开发管理 → 开发设置 获取 AppID( wx 开头 ) 和 AppSecret
+    app-id: ${WX_APPID:}
+    app-secret: ${WX_APPSECRET:}
+  integration:
+    # 外部依赖 mock 开关：true=使用模拟实现，false=调用真实接口（需补充密钥）
+    wechat-pay-mock: true
+    ai-mock: true
+    oss-mock: true
+  upload:
+    # 图片上传目录（相对应用启动目录），对外访问路径固定为 /api/uploads/**
+    dir: ${UPLOAD_DIR:./uploads}
+
+logging:
+  level:
+    com.greenyi.charity: debug

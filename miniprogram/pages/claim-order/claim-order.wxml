@@ -1,0 +1,56 @@
+<view class="container">
+    <view wx:if="{{viewState === 'loading'}}" class="card center" style="padding:80rpx">
+        <view class="spinner"></view><text class="state-text">加载中…</text>
+    </view>
+    <view wx:elif="{{viewState === 'error'}}" class="card center" style="padding:80rpx">
+        <text class="state-icon">!</text><text class="state-text">{{errorMsg}}</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="retry">重试</button>
+    </view>
+    <block wx:else>
+        <view class="card">
+            <view class="title mb16">申领商品</view>
+            <view class="row">
+                <view class="p-cover" wx:if="{{product.coverUrl}}"><image src="{{product.coverUrl}}" mode="aspectFill" class="cover-img"></image></view>
+                <view class="p-cover p-photo" wx:else>免</view>
+                <view class="grow">
+                    <view class="title">{{product.name}}</view>
+                    <view class="subtitle mt8">免费申领 · 库存 {{product.stock}}</view>
+                    <view class="tag mt8">0 元</view>
+                </view>
+            </view>
+            <view class="divider"></view>
+            <view class="text-muted">{{product.description}}</view>
+        </view>
+
+        <view class="card">
+            <view class="title mb16">收货信息</view>
+            <picker mode="selector" range="{{addressTexts}}" value="{{addressIndex}}" bindchange="onAddressChange" wx:if="{{addressTexts.length > 0}}">
+                <view class="form-item">
+                    <view class="form-label required">收货地址</view>
+                    <view class="form-input">{{addressTexts[addressIndex]}} <text class="text-muted">▾</text></view>
+                </view>
+            </picker>
+            <view wx:else class="empty-tip">暂无收货地址，请先新增</view>
+            <view class="text-green link" bindtap="goAddress">+ 管理/新增收货地址</view>
+        </view>
+
+        <view class="card">
+            <view class="title mb16">配送与运费</view>
+            <picker mode="selector" range="{{regions}}" value="{{regionIndex}}" bindchange="onRegionChange">
+                <view class="form-item">
+                    <view class="form-label">配送地区</view>
+                    <view class="form-input">{{region}} <text class="text-muted">▾</text></view>
+                </view>
+            </picker>
+            <view class="freight-box">
+                <view class="row between"><text class="text-muted">计费模板</text><text>{{freight.template}}</text></view>
+                <view class="row between mt8"><text class="text-muted">重量</text><text>{{freight.weightKg}} kg</text></view>
+                <view class="row between mt8"><text class="text-muted">运费</text><text class="text-red freight-num">{{freight.freightAmount}} 元</text></view>
+            </view>
+            <view wx:if="{{freightLoading}}" class="row center mt8"><view class="spinner small"></view><text class="text-muted">试算中…</text></view>
+        </view>
+
+        <button class="primary-btn mt24" loading="{{submitting}}" bindtap="submitClaim">提交申领并支付运费</button>
+        <view class="text-muted tip">商品免费，仅需承担运费；每人限领 3 件。</view>
+    </block>
+</view>

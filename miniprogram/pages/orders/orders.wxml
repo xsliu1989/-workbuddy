@@ -1,0 +1,39 @@
+<view class="container">
+    <view wx:if="{{viewState === 'loading'}}" class="card center state-box">
+        <view class="spinner"></view>
+        <text class="state-text">订单加载中…</text>
+    </view>
+    <view wx:elif="{{viewState === 'error'}}" class="card center state-box">
+        <text class="state-icon">!</text>
+        <text class="state-text">{{errorMsg}}</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="retryLoad">重试</button>
+    </view>
+    <block wx:else>
+        <scroll-view class="tabs" scroll-x>
+            <view class="tab {{filter === item.key ? 'active' : ''}}" wx:for="{{tabs}}" wx:key="key" data-key="{{item.key}}" bindtap="onFilterTap">{{item.label}}</view>
+        </scroll-view>
+
+        <view wx:if="{{filtered.length === 0}}" class="card center state-box">
+            <text class="state-icon">○</text>
+            <text class="state-text">{{filter === 'ALL' ? '暂无订单' : '该状态下暂无订单'}}</text>
+            <button class="ghost-btn mt16" size="mini" bindtap="goMall">去商城逛逛</button>
+        </view>
+
+        <view class="card order-card" wx:for="{{filtered}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
+            <view class="between">
+                <text class="subtitle">订单号 {{item.orderNo}}</text>
+                <text class="status-tag status-{{item.status}}">{{item.statusLabel}}</text>
+            </view>
+            <view class="goods-summary mt8">{{item.itemSummary}}</view>
+            <view class="between mt8">
+                <text class="text-muted">{{item.dateText}} · {{item.payLabel}}</text>
+                <view class="row">
+                    <text class="text-muted">实付 </text>
+                    <text class="amount">¥{{item.amountText}}</text>
+                    <text class="arrow">›</text>
+                </view>
+            </view>
+            <view wx:if="{{item.logisticsNo}}" class="logistics mt8">物流单号：{{item.logisticsNo}}</view>
+        </view>
+    </block>
+</view>

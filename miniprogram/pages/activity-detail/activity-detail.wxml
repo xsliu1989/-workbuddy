@@ -1,0 +1,58 @@
+<view class="container">
+    <view wx:if="{{viewState === 'loading'}}" class="card center" style="padding:80rpx">
+        <view class="spinner"></view><text class="state-text">加载中…</text>
+    </view>
+    <view wx:elif="{{viewState === 'error'}}" class="card center" style="padding:80rpx">
+        <text class="state-icon">!</text><text class="state-text">{{errorMsg}}</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="retry">重试</button>
+    </view>
+    <block wx:else>
+        <view class="card">
+            <view class="d-cover" wx:if="{{activity.coverUrl}}"><image src="{{activity.coverUrl}}" mode="aspectFill" class="cover-img"></image></view>
+            <view class="row between mt16">
+                <text class="title-lg">{{activity.title}}</text>
+                <text class="tag">{{statusText}}</text>
+            </view>
+            <view class="divider"></view>
+            <view class="info-row"><text class="info-label">时间</text><text class="grow">{{startText}} 至 {{endText}}</text></view>
+            <view class="info-row"><text class="info-label">地点</text><text class="grow">{{activity.location}}</text></view>
+            <view class="info-row"><text class="info-label">名额</text><text class="grow">已报名 {{activity.signedCount}} / {{activity.quota}}</text></view>
+            <view class="divider"></view>
+            <view class="subtitle">活动介绍</view>
+            <view class="desc-text">{{activity.description}}</view>
+        </view>
+        <button class="primary-btn mt24" disabled="{{activity.status === 'FINISHED' || activity.signedCount >= activity.quota}}" bindtap="openSignup">立即报名</button>
+        <view class="text-muted tip">报名先到先得，满员即止，无需审核。报名需填写姓名与手机号，也可替他人报名。</view>
+    </block>
+
+    <!-- 报名表单弹层 -->
+    <view wx:if="{{showForm}}" class="form-mask" bindtap="closeForm"></view>
+    <view wx:if="{{showForm}}" class="form-sheet">
+        <view class="sheet-head">
+            <text class="title">活动报名</text>
+            <text class="sheet-close" bindtap="closeForm">关闭</text>
+        </view>
+        <view class="sheet-body">
+            <view class="mode-switch">
+                <view class="mode-item {{formMode === 'self' ? 'active' : ''}}" data-mode="self" bindtap="switchMode">为自己报名</view>
+                <view class="mode-item {{formMode === 'other' ? 'active' : ''}}" data-mode="other" bindtap="switchMode">替他人报名</view>
+            </view>
+            <view wx:if="{{formMode === 'self' && hasMyPhone}}" class="confirm-note">已带出账号昵称与手机号，请确认是否正确；如需修改可直接编辑。</view>
+            <view wx:elif="{{formMode === 'self'}}" class="confirm-note warn">当前账号未留存手机号，请填写本人姓名与手机号。</view>
+            <view wx:else class="confirm-note">填写实际参加活动的志愿者姓名与手机号，服务时长与证书将以此姓名记录。</view>
+
+            <view class="form-field">
+                <text class="field-label">报名人姓名</text>
+                <input class="field-input" type="text" placeholder="请输入姓名" value="{{formName}}" bindinput="onNameInput" maxlength="32" />
+            </view>
+            <view class="form-field">
+                <text class="field-label">手机号</text>
+                <input class="field-input" type="number" placeholder="请输入 11 位手机号" value="{{formPhone}}" bindinput="onPhoneInput" maxlength="11" />
+            </view>
+            <view wx:if="{{formError}}" class="form-error">{{formError}}</view>
+            <view class="text-muted form-hint">同一手机号在同一活动只能报名一次。</view>
+
+            <button class="primary-btn mt16" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submitSignup">确认报名</button>
+        </view>
+    </view>
+</view>

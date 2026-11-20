@@ -1,0 +1,20 @@
+.address-card { padding: 28rpx; }
+.receiver { font-size: 32rpx; font-weight: 600; color: #1f2329; margin-right: 20rpx; }
+.phone { font-size: 28rpx; color: #4e535b; }
+.default-tag { margin-left: auto; }
+.address-text { font-size: 28rpx; color: #4e535b; line-height: 1.6; }
+.ops { display: flex; align-items: center; }
+.op { font-size: 26rpx; color: #2e7d5b; padding: 8rpx 16rpx; }
+.op.danger { color: #e34d4d; margin-left: 16rpx; }
+
+.mask { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 100; }
+.form-sheet { position: fixed; left: 0; right: 0; bottom: 0; max-height: 88vh; background: #fff; border-radius: 28rpx 28rpx 0 0; z-index: 101; display: flex; flex-direction: column; }
+.sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 28rpx 32rpx; border-bottom: 2rpx solid #f0f1f2; }
+.sheet-close { font-size: 26rpx; color: #8a9099; padding: 8rpx 16rpx; }
+.sheet-body { padding: 8rpx 32rpx 48rpx; overflow-y: auto; }
+
+/* 省市区三级联动下拉框 */
+.region-picker { display: flex; align-items: center; justify-content: space-between; background: #f7f8fa; border-radius: 12rpx; padding: 16rpx 20rpx; font-size: 30rpx; color: #1f2329; min-height: 44rpx; }
+.region-placeholder { color: #a6acb5; }
+.region-arrow { margin-left: 12rpx; font-size: 34rpx; color: #8a9099; }
+.default-row { padding: 28rpx 0 8rpx; }

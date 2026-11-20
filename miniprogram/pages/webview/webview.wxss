@@ -1,0 +1,8 @@
+.fallback {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 120rpx 48rpx; text-align: center;
+}
+.fb-icon { font-size: 96rpx; color: #c9cdd4; }
+.fb-title { font-size: 32rpx; font-weight: 600; color: #1f2329; margin-top: 24rpx; }
+.fb-desc { font-size: 26rpx; color: #8a9099; margin-top: 16rpx; line-height: 1.6; }
+.fb-url { font-size: 24rpx; color: #2e7d5b; margin-top: 24rpx; word-break: break-all; }

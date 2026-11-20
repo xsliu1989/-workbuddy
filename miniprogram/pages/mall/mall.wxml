@@ -1,0 +1,53 @@
+<view class="container">
+    <view class="between mb16">
+        <text class="title-lg">公益商城</text>
+        <view class="cart-entry" bindtap="goCart">
+            <text>购物车</text><text class="cart-arrow">›</text>
+        </view>
+    </view>
+
+    <view class="kind-tabs">
+        <view class="kind-tab {{activeKind === 'SALE' ? 'active' : ''}}" data-kind="SALE" bindtap="onKindTap">公益商品</view>
+        <view class="kind-tab {{activeKind === 'CLAIM' ? 'active' : ''}}" data-kind="CLAIM" bindtap="onKindTap">免费申领</view>
+    </view>
+
+    <view wx:if="{{viewState === 'loading'}}" class="card center state-box">
+        <view class="spinner"></view>
+        <text class="state-text">商品加载中…</text>
+    </view>
+    <view wx:elif="{{viewState === 'error'}}" class="card center state-box">
+        <text class="state-icon">!</text>
+        <text class="state-text">加载失败</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="retryLoad">重试</button>
+    </view>
+    <block wx:else>
+        <view wx:if="{{products.length === 0}}" class="card center state-box">
+            <text class="state-icon">○</text>
+            <text class="state-text">{{activeKind === 'CLAIM' ? '暂无可申领商品' : '暂无在售商品'}}</text>
+        </view>
+
+        <view class="product-grid">
+            <view class="product-card" wx:for="{{products}}" wx:key="id" data-id="{{item.id}}" data-kind="{{item.kind}}" bindtap="onProductTap">
+                <view class="product-cover">
+                    <image wx:if="{{item.coverUrl}}" src="{{item.coverUrl}}" mode="aspectFill" class="product-img"></image>
+                    <view wx:else class="product-img product-ph">图</view>
+                    <view wx:if="{{item.kind === 'CLAIM'}}" class="claim-badge">免费</view>
+                </view>
+                <view class="product-body">
+                    <view class="product-name">{{item.name}}</view>
+                    <view class="between mt8">
+                        <text class="price">{{item.priceText}}</text>
+                        <view wx:if="{{item.kind === 'SALE'}}" class="card-actions">
+                            <view class="mini-buy" data-id="{{item.id}}" catchtap="onQuickBuy">购买</view>
+                            <view class="add-btn" data-id="{{item.id}}" catchtap="onQuickAdd">＋</view>
+                        </view>
+                        <text wx:else class="text-muted">查看详情 ›</text>
+                    </view>
+                    <view class="text-muted detail-hint">查看详情 ›</view>
+                </view>
+            </view>
+        </view>
+
+        <button wx:if="{{hasMore}}" class="ghost-btn mt16" bindtap="loadMore">加载更多</button>
+    </block>
+</view>

@@ -1,0 +1,3 @@
+.record-card { padding: 24rpx 28rpx; }
+.right { text-align: right; }
+.value-text { font-size: 34rpx; font-weight: 700; color: #e34d4d; margin-top: 6rpx; }

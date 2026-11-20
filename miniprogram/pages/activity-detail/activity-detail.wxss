@@ -1,0 +1,24 @@
+.d-cover { width: 100%; height: 340rpx; border-radius: 16rpx; overflow: hidden; }
+.cover-img { width: 100%; height: 100%; }
+.info-row { display: flex; align-items: flex-start; padding: 14rpx 0; font-size: 28rpx; }
+.info-label { width: 90rpx; color: #8a9099; flex-shrink: 0; }
+.desc-text { font-size: 28rpx; color: #4e535b; line-height: 1.7; margin-top: 16rpx; white-space: pre-wrap; }
+.tip { text-align: center; margin-top: 20rpx; font-size: 22rpx; }
+
+/* 报名表单弹层 */
+.form-mask { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 50; }
+.form-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 28rpx 28rpx 0 0; z-index: 51; padding-bottom: 40rpx; max-height: 88vh; overflow-y: auto; }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; padding: 32rpx 32rpx 16rpx; }
+.sheet-head .title { font-size: 32rpx; font-weight: 600; color: #1f2937; }
+.sheet-close { font-size: 26rpx; color: #9ca3af; }
+.sheet-body { padding: 8rpx 32rpx 0; }
+.mode-switch { display: flex; background: #f3f4f6; border-radius: 16rpx; padding: 6rpx; margin-bottom: 24rpx; }
+.mode-item { flex: 1; text-align: center; padding: 18rpx 0; font-size: 28rpx; color: #6b7280; border-radius: 12rpx; }
+.mode-item.active { background: #fff; color: #0f9d63; font-weight: 600; box-shadow: 0 2rpx 8rpx rgba(0,0,0,.06); }
+.confirm-note { font-size: 24rpx; color: #0f9d63; background: #ecfdf5; border-radius: 12rpx; padding: 18rpx 20rpx; line-height: 1.6; margin-bottom: 24rpx; }
+.confirm-note.warn { color: #b45309; background: #fffbeb; }
+.form-field { margin-bottom: 22rpx; }
+.field-label { display: block; font-size: 26rpx; color: #4b5563; margin-bottom: 12rpx; }
+.field-input { width: 100%; box-sizing: border-box; height: 84rpx; background: #f9fafb; border: 1rpx solid #e5e7eb; border-radius: 14rpx; padding: 0 24rpx; font-size: 30rpx; color: #1f2937; }
+.form-error { font-size: 24rpx; color: #dc2626; margin: 4rpx 0 12rpx; }
+.form-hint { font-size: 22rpx; margin: 4rpx 0 0; }

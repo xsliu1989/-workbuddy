@@ -1,0 +1,76 @@
+<view class="container">
+    <view wx:if="{{viewState === 'loading'}}" class="state-box">
+        <view class="spinner"></view>
+        <text class="state-text">加载中…</text>
+    </view>
+
+    <view wx:elif="{{viewState === 'error'}}" class="state-box">
+        <text class="state-icon">!</text>
+        <text class="state-text">加载失败，请检查网络</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="loadData">重试</button>
+    </view>
+
+    <block wx:else>
+        <view wx:if="{{addresses.length === 0}}" class="card state-box">
+            <text class="state-icon">○</text>
+            <text class="state-text">暂无收货地址，点击下方按钮新增</text>
+        </view>
+
+        <view class="card address-card" wx:for="{{addresses}}" wx:key="id">
+            <view class="row">
+                <text class="receiver">{{item.receiver}}</text>
+                <text class="phone">{{item.phone}}</text>
+                <view wx:if="{{item.isDefault === 1}}" class="tag default-tag">默认</view>
+            </view>
+            <view class="address-text mt8">{{item.province}}{{item.city}}{{item.district}}{{item.detail}}</view>
+            <view class="divider"></view>
+            <view class="between">
+                <text class="text-muted">收货地址</text>
+                <view class="ops">
+                    <text class="op" data-index="{{index}}" bindtap="openEdit">编辑</text>
+                    <text class="op danger" data-id="{{item.id}}" bindtap="remove">删除</text>
+                </view>
+            </view>
+        </view>
+
+        <button class="primary-btn mt24" bindtap="openAdd">+ 新增收货地址</button>
+    </block>
+
+    <!-- 新增/编辑表单 -->
+    <view wx:if="{{showForm}}" class="mask" bindtap="closeForm"></view>
+    <view wx:if="{{showForm}}" class="sheet form-sheet">
+        <view class="sheet-head">
+            <text class="title">{{formMode === 'edit' ? '编辑地址' : '新增地址'}}</text>
+            <text class="sheet-close" bindtap="closeForm">关闭</text>
+        </view>
+        <view class="sheet-body" catchtap="stopPropagation">
+            <view class="form-item">
+                <text class="form-label required">收货人</text>
+                <input class="form-input" placeholder="请输入收货人姓名" value="{{form.receiver}}" data-key="receiver" bindinput="onField" />
+            </view>
+            <view class="form-item">
+                <text class="form-label required">联系电话</text>
+                <input class="form-input" type="number" placeholder="请输入联系电话" value="{{form.phone}}" data-key="phone" bindinput="onField" />
+            </view>
+            <view class="form-item">
+                <text class="form-label required">省 / 市 / 区</text>
+                <picker mode="region" value="{{form.region}}" bindchange="onRegionChange">
+                    <view class="region-picker {{form.province ? '' : 'region-placeholder'}}">
+                        <text wx:if="{{form.province}}">{{form.province}} {{form.city}} {{form.district}}</text>
+                        <text wx:else>请选择省 / 市 / 区</text>
+                        <text class="region-arrow">›</text>
+                    </view>
+                </picker>
+            </view>
+            <view class="form-item">
+                <text class="form-label required">详细地址</text>
+                <textarea class="form-textarea" placeholder="街道、门牌号等详细信息" value="{{form.detail}}" data-key="detail" bindinput="onField" />
+            </view>
+            <view class="between default-row">
+                <text class="form-label" style="margin-bottom:0">设为默认地址</text>
+                <switch checked="{{form.isDefault}}" color="#2e7d5b" bindchange="onDefaultChange" />
+            </view>
+            <button class="primary-btn mt24" disabled="{{saving}}" bindtap="save">{{saving ? '保存中…' : '保存地址'}}</button>
+        </view>
+    </view>
+</view>

@@ -1,0 +1,71 @@
+<view class="container">
+    <view wx:if="{{viewState === 'loading'}}" class="card center" style="padding:80rpx">
+        <view class="spinner"></view><text class="state-text">加载中…</text>
+    </view>
+    <view wx:elif="{{viewState === 'error'}}" class="card center" style="padding:80rpx">
+        <text class="state-icon">!</text><text class="state-text">{{errorMsg}}</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="retry">重试</button>
+    </view>
+    <block wx:else>
+        <!-- 图片轮播 -->
+        <view class="pd-gallery">
+            <swiper wx:if="{{images.length > 1}}" indicator-dots="true" autoplay="true" circular="true" class="pd-swiper">
+                <swiper-item wx:for="{{images}}" wx:key="*this">
+                    <image src="{{item}}" mode="aspectFill" class="pd-gallery-img" data-src="{{item}}" bindtap="previewImage"></image>
+                </swiper-item>
+            </swiper>
+            <image wx:elif="{{coverUrl}}" src="{{coverUrl}}" mode="aspectFill" class="pd-gallery-img" data-src="{{coverUrl}}" bindtap="previewImage"></image>
+            <view wx:else class="pd-gallery-img pd-ph">图</view>
+        </view>
+
+        <!-- 基本信息 -->
+        <view class="card">
+            <view class="between">
+                <text class="title-lg">{{product.name}}</text>
+                <text wx:if="{{isClaim}}" class="tag">免费申领</text>
+            </view>
+            <view class="pd-price">{{priceText}}</view>
+            <view class="row between mt8">
+                <text class="text-muted">库存：{{product.stock}}</text>
+                <text class="text-muted" wx:if="{{product.weightGram}}">重量：{{product.weightGram}} 克</text>
+            </view>
+        </view>
+
+        <!-- 图文详情 -->
+        <view class="card">
+            <view class="subtitle">商品详情</view>
+            <view wx:if="{{product.description}}" class="pd-rich">
+                <rich-text nodes="{{product.description}}"></rich-text>
+            </view>
+            <view wx:else class="text-muted" style="margin-top:16rpx">暂无商品介绍</view>
+        </view>
+
+        <!-- 售后描述 -->
+        <view class="card" wx:if="{{product.afterSaleDesc}}">
+            <view class="subtitle">售后说明</view>
+            <view class="pd-after">{{product.afterSaleDesc}}</view>
+        </view>
+
+        <view style="height:180rpx"></view>
+    </block>
+
+    <!-- 底部购买栏 -->
+    <view wx:if="{{viewState === 'ready'}}" class="pd-bar">
+        <view class="pd-bar-left" bindtap="goCart">
+            <text class="pd-cart-icon">车</text>
+            <text class="pd-cart-label">购物车</text>
+        </view>
+        <block wx:if="{{isClaim}}">
+            <button class="primary-btn pd-buy" bindtap="goClaim">去申领</button>
+        </block>
+        <block wx:else>
+            <view class="pd-qty">
+                <view class="qty-btn" data-delta="-1" bindtap="changeQty">－</view>
+                <text class="qty-num">{{qty}}</text>
+                <view class="qty-btn" data-delta="1" bindtap="changeQty">＋</view>
+            </view>
+            <button class="pd-add" loading="{{adding}}" disabled="{{adding}}" bindtap="addCart">加购</button>
+            <button class="primary-btn pd-buy" loading="{{buying}}" disabled="{{buying}}" bindtap="buyNow">立即购买</button>
+        </block>
+    </view>
+</view>

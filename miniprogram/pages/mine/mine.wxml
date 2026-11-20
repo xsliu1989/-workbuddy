@@ -1,0 +1,106 @@
+<view class="container">
+    <view wx:if="{{viewState === 'loading'}}" class="state-box">
+        <view class="spinner"></view>
+        <text class="state-text">加载中…</text>
+    </view>
+
+    <view wx:elif="{{viewState === 'error'}}" class="state-box">
+        <text class="state-icon">!</text>
+        <text class="state-text">加载失败，请检查网络</text>
+        <button class="ghost-btn mt16" size="mini" bindtap="init">重试</button>
+    </view>
+
+    <block wx:else>
+        <!-- 未登录 -->
+        <view wx:if="{{!logged}}" class="card login-card">
+            <view class="login-logo">绿</view>
+            <view class="title-lg mt16">欢迎来到绿益公益</view>
+            <view class="subtitle mt8">登录后查看你的荣誉档案、积分与订单</view>
+            <button class="primary-btn login-btn mt24" bindtap="doLogin">一键登录</button>
+            <view class="text-muted mt16">使用微信登录，无需注册</view>
+        </view>
+
+        <!-- 已登录 -->
+        <block wx:else>
+            <view class="profile-card">
+                <view class="profile-top row">
+                    <view class="avatar">
+                        <image wx:if="{{profile.avatarUrl}}" class="avatar-img" src="{{profile.avatarUrl}}" mode="aspectFill"></image>
+                        <text wx:else class="avatar-letter">{{avatarLetter}}</text>
+                    </view>
+                    <view class="grow">
+                        <view class="profile-name">{{profile.nickname || '绿益公益用户'}}</view>
+                        <view class="profile-sub mt8">{{levelLabel ? ('荣誉等级 · ' + levelLabel) : '让每一份善意都被看见'}}</view>
+                    </view>
+                </view>
+                <view class="profile-foot row">
+                    <view class="profile-stat"><text class="profile-num">{{levelLabel || '公益同行'}}</text><text class="profile-stat-label">公益身份</text></view>
+                    <view class="profile-stat"><text class="profile-num">绿益</text><text class="profile-stat-label">公益平台</text></view>
+                </view>
+            </view>
+
+            <view class="section-title mt24">功能服务</view>
+            <view class="entry-grid card">
+                <view class="entry-item" wx:for="{{entries}}" wx:key="key" data-index="{{index}}" bindtap="handleEntry">
+                    <view class="entry-icon" style="background:{{item.color}}">{{item.icon}}</view>
+                    <text class="entry-label">{{item.label}}</text>
+                </view>
+            </view>
+
+            <button class="logout-btn mt24" bindtap="doLogout">退出登录</button>
+            <view class="text-muted center mt24" style="font-size:22rpx">绿益公益 · 让每一份善意都被看见</view>
+        </block>
+    </block>
+
+    <!-- 我的申领弹窗 -->
+    <view wx:if="{{showClaims}}" class="mask" bindtap="closeClaims"></view>
+    <view wx:if="{{showClaims}}" class="sheet">
+        <view class="sheet-head">
+            <text class="title">我的申领</text>
+            <text class="sheet-close" bindtap="closeClaims">关闭</text>
+        </view>
+        <view class="sheet-body">
+            <view wx:if="{{claimsState === 'loading'}}" class="state-box">
+                <view class="spinner"></view><text class="state-text">加载中…</text>
+            </view>
+            <view wx:elif="{{claimsState === 'error'}}" class="state-box">
+                <text class="state-text">加载失败</text>
+                <button class="ghost-btn mt16" size="mini" bindtap="retryClaims">重试</button>
+            </view>
+            <view wx:elif="{{claims.length === 0}}" class="state-box">
+                <text class="state-icon">○</text><text class="state-text">暂无申领记录</text>
+            </view>
+            <view wx:else>
+                <view class="list-item" wx:for="{{claims}}" wx:key="id">
+                    <view class="between"><text class="subtitle">{{item.productName}}</text><text class="tag">{{item.statusLabel}}</text></view>
+                    <view class="between mt8"><text class="text-muted">申领单 {{item.claimNo}}</text><text class="text-green">运费 ¥{{item.freightAmount}}</text></view>
+                </view>
+            </view>
+        </view>
+    </view>
+
+    <!-- AI 客服对话框 -->
+    <view wx:if="{{showChat}}" class="mask" bindtap="closeChat"></view>
+    <view wx:if="{{showChat}}" class="chat-panel">
+        <view class="sheet-head">
+            <text class="title">公益小助手 · AI客服</text>
+            <text class="sheet-close" bindtap="closeChat">关闭</text>
+        </view>
+        <scroll-view class="chat-body" scroll-y scroll-into-view="{{chatAnchor}}">
+            <view class="msg-row {{item.role === 'me' ? 'me' : 'ai'}}" wx:for="{{messages}}" wx:key="anchor" id="{{item.anchor}}">
+                <view class="chat-avatar">{{item.role === 'me' ? '我' : '益'}}</view>
+                <view class="bubble-wrap">
+                    <view class="bubble">{{item.content}}</view>
+                    <view wx:if="{{item.transferHuman}}" class="text-muted mt8" style="font-size:22rpx">低置信度，已为你转接人工客服</view>
+                </view>
+            </view>
+            <view wx:if="{{chatSending}}" class="chat-typing">
+                <view class="spinner"></view><text class="state-text">小助手思考中…</text>
+            </view>
+        </scroll-view>
+        <view class="chat-input-row">
+            <input class="chat-input" value="{{chatInput}}" placeholder="输入你的问题…" confirm-type="send" bindinput="onChatInput" bindconfirm="sendChat" />
+            <button class="primary-btn chat-send" size="mini" disabled="{{chatSending}}" bindtap="sendChat">发送</button>
+        </view>
+    </view>
+</view>

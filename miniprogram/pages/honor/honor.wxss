@@ -1,0 +1,25 @@
+.honor-hero { background: linear-gradient(135deg,#f59e0b,#dc7c0e); border-radius: 24rpx; padding: 36rpx 32rpx; color: #fff; }
+.level-medal { width: 108rpx; height: 108rpx; border-radius: 50%; background: rgba(255,255,255,0.2); border: 4rpx solid rgba(255,255,255,0.6); display: flex; align-items: center; justify-content: center; font-size: 48rpx; font-weight: 700; margin-right: 24rpx; }
+.hero-title { font-size: 38rpx; font-weight: 700; }
+.hero-level { font-size: 26rpx; opacity: 0.9; }
+.hero-progress { font-size: 24rpx; background: rgba(255,255,255,0.18); border-radius: 30rpx; padding: 14rpx 24rpx; text-align: center; }
+
+.section-title { font-size: 30rpx; font-weight: 600; color: #1f2329; }
+.stat-grid { display: flex; flex-wrap: wrap; }
+.stat-cell { width: 50%; display: flex; flex-direction: column; align-items: center; padding: 24rpx 0; }
+.stat-num { font-size: 44rpx; font-weight: 700; color: #2e7d5b; }
+.stat-label { font-size: 24rpx; color: #8a9099; margin-top: 8rpx; }
+
+.cert-group-title { margin-bottom: 8rpx; }
+.group-bar { width: 8rpx; height: 32rpx; border-radius: 8rpx; margin-right: 14rpx; }
+.honor-bar { background: #ec4899; }
+.official-bar { background: #2e7d5b; }
+.cert-group-title .text-muted { margin-left: auto; }
+.empty-tip { padding: 40rpx 0; text-align: center; font-size: 26rpx; color: #c9cdd4; }
+.cert-item { padding: 24rpx 0; border-bottom: 2rpx solid #f0f1f2; }
+.cert-item:last-child { border-bottom: none; }
+.cert-badge { width: 72rpx; height: 72rpx; border-radius: 18rpx; color: #fff; font-size: 32rpx; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-right: 20rpx; flex-shrink: 0; }
+.honor-badge { background: #ec4899; }
+.official-badge { background: #2e7d5b; }
+.cert-title { font-size: 28rpx; font-weight: 600; color: #1f2329; }
+.verify-link { font-size: 26rpx; color: #2e7d5b; padding: 8rpx 0 8rpx 16rpx; }
