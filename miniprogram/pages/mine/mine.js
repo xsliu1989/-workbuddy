@@ -98,8 +98,19 @@ Page({
     },
 
     handleEntry(e) {
-        const idx = e.currentTarget.dataset.index;
-        const item = this.data.entries[idx];
+        const ds = e.currentTarget.dataset || {};
+        const action = ds.action;
+        const path = ds.path;
+        if (action === 'navigate' && path) {
+            wx.navigateTo({
+                url: path,
+                fail: () => wx.showToast({ icon: 'none', title: '页面暂未开放' })
+            });
+            return;
+        }
+        // 兜底：dataset 未带 action 时仍按 index 取，避免个别基础库版本 dataset 解析差异
+        const idx = ds.index;
+        const item = idx !== undefined ? this.data.entries[idx] : null;
         if (!item) return;
         if (item.action === 'navigate') {
             wx.navigateTo({
@@ -114,11 +125,12 @@ Page({
     },
 
     openClaims() {
-        this.setData({ showClaims: true, claimsState: 'loading', claims: [] });
-        const self = this;
-        api(app).myClaims().then(res => {
-            self.setData({ claims: res || [], claimsState: 'ready' });
-        }).catch(() => self.setData({ claimsState: 'error' }));
+        // 「我的」是 tabBar 页，原生 tabBar 会盖在自定义弹层之上，导致弹层看起来“点不开/看不见”。
+        // 改为跳转到独立的申领页，并直接定位到「我的申领」标签，交互稳定且可返回。
+        wx.navigateTo({
+            url: '/pages/claim/claim?tab=mine',
+            fail: () => wx.showToast({ icon: 'none', title: '页面打开失败' })
+        });
     },
     closeClaims() { this.setData({ showClaims: false }); },
     retryClaims() { this.openClaims(); },

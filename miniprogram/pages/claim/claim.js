@@ -12,7 +12,13 @@ Page({
         errorMsg: ''
     },
 
-    onLoad() { this.loadGoods(); },
+    onLoad(options) {
+        // 支持从「我的」页直接定位到「我的申领」标签
+        const tab = options && options.tab === 'mine' ? 'mine' : 'goods';
+        this.setData({ tab: tab });
+        if (tab === 'mine') this.loadClaims();
+        else this.loadGoods();
+    },
     onPullDownRefresh() { this.reload(() => wx.stopPullDownRefresh()); },
 
     reload(done) {
@@ -39,15 +45,27 @@ Page({
 
     loadClaims(done) {
         this.setData({ viewState: 'loading', errorMsg: '' });
-        app.ensureLogin().then(() => api(app).myClaims()).then(list => {
+        const self = this;
+        const render = list => {
             const claims = (list || []).map(item => Object.assign({}, item, {
-                timeText: this.formatTime(item.createdAt)
+                timeText: self.formatTime(item.createdAt)
             }));
-            this.setData({ claims: claims, viewState: 'ready' });
+            self.setData({ claims: claims, viewState: 'ready' });
             if (done) done();
-        }).catch(err => {
-            this.setData({ viewState: 'error', errorMsg: (err && err.message) || '加载失败' });
+        };
+        const fail = err => {
+            self.setData({ viewState: 'error', errorMsg: (err && err.message) || '加载失败' });
             if (done) done();
+        };
+        app.ensureLogin().then(() => api(app).myClaims()).then(render).catch(err => {
+            // 登录态过期时 request.js 已清空 token，这里自动重新登录并重试一次，避免“点了没反应”
+            const msg = (err && err.message) || '';
+            if (msg.indexOf('登录') >= 0 || msg.indexOf('401') >= 0) {
+                app.globalData.token = null;
+                app.globalData.userInfo = null;
+                return app.ensureLogin().then(() => api(app).myClaims()).then(render).catch(fail);
+            }
+            fail(err);
         });
     },
 

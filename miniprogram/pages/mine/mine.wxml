@@ -41,7 +41,7 @@
 
             <view class="section-title mt24">功能服务</view>
             <view class="entry-grid card">
-                <view class="entry-item" wx:for="{{entries}}" wx:key="key" data-index="{{index}}" bindtap="handleEntry">
+                <view class="entry-item" wx:for="{{entries}}" wx:key="key" data-index="{{index}}" data-action="{{item.action}}" data-path="{{item.path}}" bindtap="handleEntry">
                     <view class="entry-icon" style="background:{{item.color}}">{{item.icon}}</view>
                     <text class="entry-label">{{item.label}}</text>
                 </view>

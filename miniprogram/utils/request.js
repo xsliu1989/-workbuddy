@@ -43,7 +43,14 @@ function request(app, options) {
                 if (body && body.code === 0) {
                     resolve(normalizeImageUrls(body.data, app));
                 } else if (body && body.code === 401) {
+                    // 同时清掉内存中的登录态，否则 ensureLogin 会因 globalData.token 仍在而跳过登录，
+                    // 之后所有需要登录的操作（如我的申领）都会一直失败，看起来像“点击没反应”。
                     wx.removeStorageSync('token');
+                    wx.removeStorageSync('userInfo');
+                    if (app.globalData) {
+                        app.globalData.token = null;
+                        app.globalData.userInfo = null;
+                    }
                     reject(new Error(body.message || '请先登录'));
                 } else {
                     reject(new Error((body && body.message) || '请求失败'));
