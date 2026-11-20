@@ -1,5 +1,6 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
+const { coverOf } = require('../../utils/product.js');
 
 Page({
     data: {
@@ -34,12 +35,13 @@ Page({
             const p = res || {};
             const isClaim = p.kind === 'CLAIM';
             const images = this.parseImages(p.images);
+            const cover = coverOf(p);
             this.setData({
                 product: p,
                 isClaim: isClaim,
                 priceText: isClaim ? '免费申领（仅付运费）' : ('¥' + p.price),
-                images: images,
-                coverUrl: p.coverUrl || (images.length ? images[0] : ''),
+                images: images.length ? images : (cover ? [cover] : []),
+                coverUrl: cover,
                 viewState: 'ready'
             });
             if (done) done();

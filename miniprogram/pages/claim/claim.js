@@ -1,5 +1,6 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
+const { coverOf } = require('../../utils/product.js');
 
 Page({
     data: {
@@ -21,7 +22,11 @@ Page({
     loadGoods(done) {
         this.setData({ viewState: 'loading', errorMsg: '' });
         api(app).products(1, 50, 'CLAIM').then(res => {
-            this.setData({ products: (res && res.records) || [], viewState: 'ready' });
+            const products = ((res && res.records) || []).map(function (p) {
+                if (!p.coverUrl) p.coverUrl = coverOf(p);
+                return p;
+            });
+            this.setData({ products: products, viewState: 'ready' });
             if (done) done();
         }).catch(err => {
             this.setData({ viewState: 'error', errorMsg: (err && err.message) || '加载失败' });

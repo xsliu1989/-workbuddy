@@ -1,5 +1,6 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
+const { coverOf } = require('../../utils/product.js');
 
 Page({
     data: {
@@ -27,7 +28,7 @@ Page({
                     productId: x.productId,
                     name: x.name,
                     price: price,
-                    coverUrl: x.coverUrl,
+                    coverUrl: x.coverUrl || coverOf(x),
                     quantity: qty,
                     stock: x.stock || 0,
                     checked: (x.selected === 1 || x.selected === true),

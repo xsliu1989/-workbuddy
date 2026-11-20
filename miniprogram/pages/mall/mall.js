@@ -1,8 +1,10 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
+const { coverOf } = require('../../utils/product.js');
 
 function decorate(p) {
     p.priceText = p.kind === 'CLAIM' ? '免费申领' : ('¥' + p.price);
+    if (!p.coverUrl) p.coverUrl = coverOf(p); // cover_url 为空时用图片列表/详情图兜底
     return p;
 }
 
