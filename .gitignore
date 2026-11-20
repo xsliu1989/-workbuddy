@@ -1,0 +1,42 @@
+# Build output / dependencies
+target/
+build/
+dist/
+out/
+node_modules/
+*.class
+*.jar
+*.war
+
+# Logs and temp files
+*.log
+logs/
+*.tmp
+*.bak
+*~
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+application-local.yml
+application-local.yaml
+application-local.properties
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+id_rsa*
+id_ed25519*
+credentials*.json
+secrets*.json
+.git-credentials
+.netrc
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
