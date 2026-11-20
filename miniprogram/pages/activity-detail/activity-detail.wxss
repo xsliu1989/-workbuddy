@@ -1,8 +1,8 @@
-.d-cover { width: 100%; height: 340rpx; border-radius: 16rpx; overflow: hidden; }
-.cover-img { width: 100%; height: 100%; }
+.d-banner { width: 100%; height: 360rpx; border-radius: 16rpx; overflow: hidden; margin-top: 16rpx; background: #eef1f4; }
+.banner-img { width: 100%; height: 100%; display: block; }
 .info-row { display: flex; align-items: flex-start; padding: 14rpx 0; font-size: 28rpx; }
 .info-label { width: 90rpx; color: #8a9099; flex-shrink: 0; }
-.desc-text { font-size: 28rpx; color: #4e535b; line-height: 1.7; margin-top: 16rpx; white-space: pre-wrap; }
+.desc-rich { display: block; font-size: 28rpx; color: #4e535b; line-height: 1.7; margin-top: 16rpx; }
 .tip { text-align: center; margin-top: 20rpx; font-size: 22rpx; }
 
 /* 报名表单弹层 */

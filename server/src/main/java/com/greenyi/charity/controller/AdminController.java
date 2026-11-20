@@ -85,8 +85,12 @@ public class AdminController {
     public Result<IPage<Activity>> activities(@RequestParam(defaultValue = "1") int current, @RequestParam(defaultValue = "10") int size) {
         requireAdmin(); return Result.ok(activityService.adminList(current, size));
     }
+    @GetMapping("/activity/{id}")
+    public Result<Activity> activityDetail(@PathVariable Long id) { requireAdmin(); return Result.ok(activityService.detail(id)); }
     @PostMapping("/activity")
     public Result<Activity> saveActivity(@RequestBody Activity a) { requireAdmin(); return Result.ok(activityService.save(a)); }
+    @DeleteMapping("/activity/{id}")
+    public Result<?> deleteActivity(@PathVariable Long id) { requireAdmin(); activityService.delete(id); return Result.ok(); }
     @PostMapping("/activity/{id}/finish")
     public Result<Map<String, Object>> finishActivity(@PathVariable Long id) { requireAdmin(); return Result.ok(activityService.finish(id)); }
     @GetMapping("/activity/{id}/signups")

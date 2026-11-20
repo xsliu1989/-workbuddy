@@ -1,6 +1,7 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
 const imageLocal = require('../../utils/image-local.js');
+const timeUtil = require('../../utils/time.js');
 
 const STATUS = { PUBLISHED: '报名中', ONGOING: '进行中', FINISHED: '已结束', CANCELLED: '已取消' };
 
@@ -13,6 +14,7 @@ Page({
         statusText: '',
         startText: '',
         endText: '',
+        timeText: '',
         // 报名表单
         showForm: false,
         formMode: 'self',        // self=本人报名, other=替他人报名
@@ -44,12 +46,13 @@ Page({
                 imageLocal.hydrateDescription(a.description)
             ]).then(result => {
                 a.coverUrl = result[0] || '';
-                a.description = result[1];
+                a.description = timeUtil.toRichText(result[1]);
                 this.setData({
                     activity: a,
                     statusText: STATUS[a.status] || a.status,
-                    startText: this.formatTime(a.startTime),
-                    endText: this.formatTime(a.endTime),
+                    startText: timeUtil.formatTime(a.startTime),
+                    endText: timeUtil.formatTime(a.endTime),
+                    timeText: timeUtil.rangeText(a.startTime, a.endTime),
                     viewState: 'ready'
                 });
                 if (done) done();

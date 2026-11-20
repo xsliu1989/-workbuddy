@@ -8,18 +8,18 @@
     </view>
     <block wx:else>
         <view class="card">
-            <view class="d-cover" wx:if="{{activity.coverUrl}}"><image src="{{activity.coverUrl}}" mode="aspectFill" class="cover-img"></image></view>
-            <view class="row between mt16">
+            <view class="row between">
                 <text class="title-lg">{{activity.title}}</text>
                 <text class="tag">{{statusText}}</text>
             </view>
+            <view class="d-banner" wx:if="{{activity.coverUrl}}"><image src="{{activity.coverUrl}}" mode="aspectFill" class="banner-img"></image></view>
             <view class="divider"></view>
-            <view class="info-row"><text class="info-label">时间</text><text class="grow">{{startText}} 至 {{endText}}</text></view>
-            <view class="info-row"><text class="info-label">地点</text><text class="grow">{{activity.location}}</text></view>
+            <view class="info-row"><text class="info-label">时间</text><text class="grow">{{timeText}}</text></view>
+            <view class="info-row"><text class="info-label">地点</text><text class="grow">{{activity.location || '待定'}}</text></view>
             <view class="info-row"><text class="info-label">名额</text><text class="grow">已报名 {{activity.signedCount}} / {{activity.quota}}</text></view>
             <view class="divider"></view>
-            <view class="subtitle">活动介绍</view>
-            <view class="desc-text">{{activity.description}}</view>
+            <view class="subtitle">活动详情</view>
+            <rich-text class="desc-rich" nodes="{{activity.description}}"></rich-text>
         </view>
         <button class="primary-btn mt24" disabled="{{activity.status === 'FINISHED' || activity.signedCount >= activity.quota}}" bindtap="openSignup">立即报名</button>
         <view class="text-muted tip">报名先到先得，满员即止，无需审核。报名需填写姓名与手机号，也可替他人报名。</view>

@@ -573,20 +573,95 @@ function editProduct(id) {
 }
 
 /* ==================== 活动管理 ==================== */
+/* 活动时间：数据库/接口为 yyyy-MM-dd HH:mm:ss，datetime-local 控件需要 yyyy-MM-ddTHH:mm */
+function activityInputTime(v) { return v ? String(v).replace(' ', 'T').slice(0, 16) : ''; }
+function activityPayloadTime(v) {
+  if (!v) return null;
+  var s = String(v).replace('T', ' ');
+  return s.length === 16 ? s + ':00' : s.slice(0, 19);
+}
+function activityLabelTime(v) { return v ? String(v).slice(0, 16) : '-'; }
+
 function renderActivities(c) {
   api('/admin/activities?current=1&size=50').then(function (d) {
     var rows = (d.records || []).map(function (x) {
       var tag = x.status === 'ONGOING' ? '<span class="tag tag-green">进行中</span>'
-        : x.status === 'FINISHED' ? '<span class="tag">已结束</span>' : '<span class="tag tag-blue">' + esc(x.status) + '</span>';
-      return '<tr><td>' + esc(x.id) + '</td><td>' + esc(x.title) + '</td><td>' + esc(x.location || '-') + '</td>'
-        + '<td>' + esc(x.signupCount || 0) + '/' + esc(x.capacity || '-') + '</td><td>' + tag + '</td><td>'
-        + '<button class="btn" onclick="viewSignups(' + x.id + ')">报名名单</button>'
-        + (x.status === 'FINISHED' ? '' : '<button class="btn btn-primary" onclick="finishActivity(' + x.id + ')">结束并发证书</button>')
+        : x.status === 'FINISHED' ? '<span class="tag">已结束</span>'
+        : x.status === 'CANCELLED' ? '<span class="tag">已取消</span>' : '<span class="tag tag-blue">报名中</span>';
+      var cover = x.coverUrl ? '<img src="' + esc(imgSrc(x.coverUrl)) + '" style="width:64px;height:40px;object-fit:cover;border-radius:4px;vertical-align:middle">' : '-';
+      return '<tr><td>' + esc(x.id) + '</td><td>' + cover + '</td><td>' + esc(x.title) + '</td>'
+        + '<td>' + esc(activityLabelTime(x.startTime)) + '<br>至 ' + esc(activityLabelTime(x.endTime)) + '</td>'
+        + '<td>' + esc(x.location || '-') + '</td>'
+        + '<td>' + esc(x.signedCount || x.signupCount || 0) + '/' + esc(x.quota || x.capacity || '-') + '</td><td>' + tag + '</td><td>'
+        + '<button class="btn" onclick="editActivity(' + x.id + ')">编辑</button> '
+        + '<button class="btn" onclick="viewSignups(' + x.id + ')">报名名单</button> '
+        + (x.status === 'FINISHED' || x.status === 'CANCELLED' ? '' : '<button class="btn btn-primary" onclick="finishActivity(' + x.id + ')">结束并发证书</button> ')
+        + '<button class="btn" onclick="deleteActivity(' + x.id + ')">删除</button>'
         + '</td></tr>';
     }).join('');
     c.innerHTML = pageHead('活动管理', '公益活动发布、志愿者招募与证书发放')
-      + tablePanel(['ID','活动名称','地点','报名/名额','状态','操作'], rows, (d.records || []).length, '暂无活动');
+      + '<div style="margin-bottom:14px"><button class="btn btn-primary" onclick="editActivity(null)">＋ 新增活动</button></div>'
+      + tablePanel(['ID','封面','活动名称','时间','地点','报名/名额','状态','操作'], rows, (d.records || []).length, '暂无活动，点「新增活动」创建');
   }).catch(function (e) { c.innerHTML = errPanel(e); });
+}
+
+/** 新增/编辑活动表单 */
+function editActivity(id) {
+  var done = function (a) {
+    a = a || {};
+    var isEdit = !!id;
+    var status = a.status || 'PUBLISHED';
+    var statusOptions = [['PUBLISHED','报名中'],['ONGOING','进行中'],['FINISHED','已结束'],['CANCELLED','已取消']];
+    var statusHtml = statusOptions.map(function (o) {
+      return '<option value="' + o[0] + '"' + (status === o[0] ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+    var body = '<div style="max-height:60vh;overflow-y:auto;padding-right:6px">'
+      + '<label class="form-label">活动名称 *</label><input id="aTitle" class="form-input" value="' + esc(a.title || '') + '" placeholder="如：社区旧衣回收志愿行">'
+      + '<label class="form-label">活动地点</label><input id="aLocation" class="form-input" value="' + esc(a.location || '') + '" placeholder="如：市南区社区服务中心">'
+      + '<div style="display:flex;gap:12px">'
+      + '<div style="flex:1"><label class="form-label">开始时间</label><input id="aStart" class="form-input" type="datetime-local" value="' + esc(activityInputTime(a.startTime)) + '"></div>'
+      + '<div style="flex:1"><label class="form-label">结束时间</label><input id="aEnd" class="form-input" type="datetime-local" value="' + esc(activityInputTime(a.endTime)) + '"></div></div>'
+      + '<div style="display:flex;gap:12px">'
+      + '<div style="flex:1"><label class="form-label">报名名额</label><input id="aQuota" class="form-input" type="number" min="0" value="' + esc(a.quota || 0) + '"></div>'
+      + '<div style="flex:1"><label class="form-label">状态</label><select id="aStatus" class="form-input">' + statusHtml + '</select></div></div>'
+      + '<label class="form-label">活动背景图（上传）</label>' + uploadFieldHtml('aCover', a.coverUrl || '', false)
+      + '<div style="font-size:12px;color:#6b7280;margin:-4px 0 10px">图片会作为小程序活动列表中名称下方的横幅背景，以及详情页标题下方的大图。</div>'
+      + '<label class="form-label">活动详情（支持文字 + 图片）</label>'
+      + '<textarea id="aDesc" class="form-input" style="height:150px;resize:vertical;line-height:1.6" placeholder="填写活动介绍、集合地点、注意事项等">' + esc(a.description || '') + '</textarea>'
+      + '<label class="btn upload-btn" style="margin-top:6px">＋ 在详情中插入图片'
+      + '<input type="file" accept="image/*" style="display:none" onchange="insertDescImage(this,\'aDesc\')"></label>'
+      + '</div>';
+    showModal(isEdit ? '编辑活动 #' + id : '新增活动', body, function () {
+      var title = document.getElementById('aTitle').value.trim();
+      if (!title) { showToast('请填写活动名称', false); return; }
+      var payload = {
+        title: title,
+        location: document.getElementById('aLocation').value.trim(),
+        startTime: activityPayloadTime(document.getElementById('aStart').value),
+        endTime: activityPayloadTime(document.getElementById('aEnd').value),
+        quota: Number(document.getElementById('aQuota').value) || 0,
+        status: document.getElementById('aStatus').value,
+        coverUrl: document.getElementById('aCover').value.trim(),
+        description: document.getElementById('aDesc').value
+      };
+      if (isEdit) payload.id = id;
+      api('/admin/activity', { method: 'POST', body: payload }).then(function () {
+        showToast(isEdit ? '已保存' : '已创建', true); closeModal(); loadPage('activities');
+      }).catch(function (e) { showToast(e.message || '保存失败', false); });
+    });
+    renderThumbs('aCover');
+  };
+  if (id) api('/admin/activity/' + id).then(done).catch(function (e) { showToast(e.message, false); });
+  else done(null);
+}
+
+/** 仅允许删除没有任何报名记录的活动 */
+function deleteActivity(id) {
+  confirmBox('删除活动', '仅可删除没有报名记录的活动，已有报名的活动不能删除。确定删除 ID 为 ' + id + ' 的活动吗？', function () {
+    api('/admin/activity/' + id, { method: 'DELETE' }).then(function () {
+      showToast('活动已删除', true); closeModal(); loadPage('activities');
+    }).catch(function (e) { showToast(e.message || '删除失败', false); });
+  });
 }
 function finishActivity(id) {
   confirmBox('结束活动', '结束后将为已签到志愿者发放官方资质证书，确定继续？', function () {

@@ -1,6 +1,7 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
 const imageLocal = require('../../utils/image-local.js');
+const timeUtil = require('../../utils/time.js');
 
 const STATUS = { PUBLISHED: '报名中', ONGOING: '进行中', FINISHED: '已结束', CANCELLED: '已取消' };
 
@@ -53,7 +54,8 @@ Page({
         api(app).activityList(1, 20).then(res => {
             const all = ((res && res.records) || []).map(a => Object.assign({}, a, {
                 statusText: STATUS[a.status] || a.status,
-                startText: this.formatTime(a.startTime)
+                startText: timeUtil.formatTime(a.startTime),
+                timeText: timeUtil.rangeText(a.startTime, a.endTime)
             }));
             const open = all.filter(a => a.status === 'PUBLISHED' || a.status === 'ONGOING');
             return imageLocal.hydrateCovers((open.length ? open : all).slice(0, 3)).then(list => {

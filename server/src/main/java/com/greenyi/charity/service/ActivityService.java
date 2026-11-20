@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 活动与志愿者服务（FA-050~054）
@@ -20,6 +22,8 @@ import java.util.*;
  */
 @Service
 public class ActivityService {
+    private static final Pattern IMG_SRC = Pattern.compile("<img[^>]*\\bsrc\\s*=\\s*[\"']([^\"']+)[\"']", Pattern.CASE_INSENSITIVE);
+
     @Autowired private ActivityMapper activityMapper;
     @Autowired private VolunteerSignupMapper signupMapper;
     @Autowired private CertificateService certificateService;
@@ -32,13 +36,22 @@ public class ActivityService {
         IPage<Activity> page = activityMapper.selectPage(new Page<>(current, size),
                 new LambdaQueryWrapper<Activity>().in(Activity::getStatus, Arrays.asList("PUBLISHED", "ONGOING", "FINISHED"))
                         .orderByDesc(Activity::getCreatedAt));
-        return PageResult.of(page, a -> a);
+        return PageResult.of(page, a -> { fillCoverIfBlank(a); return a; });
     }
 
     public Activity detail(Long id) {
         Activity a = activityMapper.selectById(id);
         if (a == null) throw new BusinessException(404, "活动不存在");
+        fillCoverIfBlank(a);
         return a;
+    }
+
+    /** 未上传封面时，用详情里的第一张图作为活动背景图 */
+    private void fillCoverIfBlank(Activity a) {
+        if (a == null || a.getCoverUrl() != null && !a.getCoverUrl().trim().isEmpty()) return;
+        if (a.getDescription() == null || a.getDescription().trim().isEmpty()) return;
+        Matcher m = IMG_SRC.matcher(a.getDescription());
+        if (m.find()) a.setCoverUrl(m.group(1));
     }
 
     /** 志愿者报名：先到先得，满员即止，无审核。支持填写报名人姓名/手机号，可替他人报名 */
@@ -165,14 +178,34 @@ public class ActivityService {
 
     // ---------- 后台活动管理 ----------
     public IPage<Activity> adminList(int current, int size) {
-        return activityMapper.selectPage(new Page<>(current, size),
+        IPage<Activity> page = activityMapper.selectPage(new Page<>(current, size),
                 new LambdaQueryWrapper<Activity>().orderByDesc(Activity::getCreatedAt));
+        for (Activity a : page.getRecords()) fillCoverIfBlank(a);
+        return page;
     }
 
     public Activity save(Activity a) {
-        if (a.getId() == null) { a.setSignedCount(0); a.setStatus("PUBLISHED"); activityMapper.insert(a); }
-        else activityMapper.updateById(a);
+        if (a.getId() == null) {
+            a.setSignedCount(0);
+            if (a.getStatus() == null || a.getStatus().trim().isEmpty()) a.setStatus("PUBLISHED");
+            activityMapper.insert(a);
+        } else {
+            activityMapper.updateById(a);
+        }
         return a;
+    }
+
+    /** 只允许删除没有任何报名记录的活动，避免损坏志愿者与证书关联 */
+    @Transactional
+    public void delete(Long id) {
+        Activity a = activityMapper.selectById(id);
+        if (a == null) throw new BusinessException(404, "活动不存在");
+        Long count = signupMapper.selectCount(new LambdaQueryWrapper<VolunteerSignup>()
+                .eq(VolunteerSignup::getActivityId, id));
+        if (count != null && count > 0) {
+            throw new BusinessException(400, "该活动已有 " + count + " 条报名记录，不能删除；可改为结束或取消活动");
+        }
+        activityMapper.deleteById(id);
     }
 
     /** AI 活动文案草稿（人工确认后发布） */

@@ -27,17 +27,15 @@
         <text class="text-muted" data-path="/pages/activity/activity" bindtap="goPage">更多 ›</text>
     </view>
     <view class="card activity-home-card" wx:for="{{activities}}" wx:key="id" data-id="{{item.id}}" bindtap="openActivity">
-        <view class="a-cover" wx:if="{{item.coverUrl}}"><image src="{{item.coverUrl}}" mode="aspectFill" class="cover-img"></image></view>
-        <view class="grow">
-            <view class="row between">
-                <text class="title a-title">{{item.title}}</text>
-                <text class="tag {{item.status === 'FINISHED' ? 'tag-warn' : ''}}">{{item.statusText}}</text>
-            </view>
-            <view class="subtitle mt8">{{item.startText}} · {{item.location}}</view>
-            <view class="row between mt8">
-                <text class="text-muted">名额 {{item.signedCount || 0}}/{{item.quota}}</text>
-                <text class="text-green">查看详情 ›</text>
-            </view>
+        <view class="row between">
+            <text class="title a-title">{{item.title}}</text>
+            <text class="tag {{item.status === 'FINISHED' ? 'tag-warn' : ''}}">{{item.statusText}}</text>
+        </view>
+        <view class="a-banner" wx:if="{{item.coverUrl}}"><image src="{{item.coverUrl}}" mode="aspectFill" class="banner-img"></image></view>
+        <view class="subtitle mt8">{{item.timeText}} · {{item.location || '待定'}}</view>
+        <view class="row between mt8">
+            <text class="text-muted">名额 {{item.signedCount || 0}}/{{item.quota}}</text>
+            <text class="text-green">查看详情 ›</text>
         </view>
     </view>
     <view wx:if="{{viewState === 'ready' && activities.length === 0}}" class="card center" style="padding:40rpx">
