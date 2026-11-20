@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * 商品服务（公益商品 SALE / 免费申领品 CLAIM）
  */
@@ -28,13 +31,32 @@ public class ProductService {
         if (StringUtils.hasText(kind)) qw.eq(Product::getKind, kind);
         qw.orderByDesc(Product::getCreatedAt);
         IPage<Product> page = productMapper.selectPage(new Page<>(current, size), qw);
-        return PageResult.of(page, p -> p);
+        return PageResult.of(page, p -> { fillCoverIfBlank(p); return p; });
     }
 
     public Product detail(Long id) {
         Product p = productMapper.selectById(id);
         if (p == null || (p.getStatus() != null && p.getStatus() == 0)) throw new BusinessException(404, "商品不存在或已下架");
+        fillCoverIfBlank(p);
         return p;
+    }
+
+    /** 封面兜底：cover_url 为空时依次用 图片列表第一张、详情描述里的第一张图，避免列表/详情顶部空白 */
+    private static final Pattern IMG_SRC = Pattern.compile("<img[^>]*\\bsrc\\s*=\\s*[\"']([^\"']+)[\"']", Pattern.CASE_INSENSITIVE);
+
+    public void fillCoverIfBlank(Product p) {
+        if (p == null) return;
+        if (StringUtils.hasText(p.getCoverUrl())) return;
+        String imgs = p.getImages();
+        if (StringUtils.hasText(imgs)) {
+            String first = imgs.split("[,，\\n]")[0].trim();
+            if (!first.isEmpty()) { p.setCoverUrl(first); return; }
+        }
+        String desc = p.getDescription();
+        if (StringUtils.hasText(desc)) {
+            Matcher m = IMG_SRC.matcher(desc);
+            if (m.find()) p.setCoverUrl(m.group(1).trim());
+        }
     }
 
     // ---------- 后台管理 ----------

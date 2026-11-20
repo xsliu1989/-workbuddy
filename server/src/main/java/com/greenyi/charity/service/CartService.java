@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class CartService {
     @Autowired private CartMapper cartMapper;
     @Autowired private ProductMapper productMapper;
+    @Autowired private ProductService productService;
 
     /** 购物车视图：联商品信息 */
     public List<Map<String, Object>> list() {
@@ -35,6 +36,7 @@ public class CartService {
             m.put("productId", c.getProductId());
             m.put("name", p == null ? "已下架" : p.getName());
             m.put("price", p == null ? null : p.getPrice());
+            if (p != null) productService.fillCoverIfBlank(p);
             m.put("coverUrl", p == null ? null : p.getCoverUrl());
             m.put("quantity", c.getQuantity());
             m.put("selected", c.getSelected());
