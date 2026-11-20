@@ -1,5 +1,6 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
+const imageLocal = require('../../utils/image-local.js');
 
 const STATUS = { PUBLISHED: '报名中', ONGOING: '进行中', FINISHED: '已结束', CANCELLED: '已取消' };
 const SIGN_STATUS = { SIGNED_UP: '已报名', CHECKED_IN: '已签到', CERT_ISSUED: '已发证' };
@@ -30,8 +31,10 @@ Page({
                 startText: this.formatTime(a.startTime),
                 endText: this.formatTime(a.endTime)
             }));
-            this.setData({ activities: activities, viewState: 'ready' });
-            if (done) done();
+            return imageLocal.hydrateCovers(activities).then(list => {
+                this.setData({ activities: list, viewState: 'ready' });
+                if (done) done();
+            });
         }).catch(err => {
             this.setData({ viewState: 'error', errorMsg: (err && err.message) || '加载失败' });
             if (done) done();

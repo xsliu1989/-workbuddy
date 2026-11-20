@@ -1,6 +1,7 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
 const { coverOf } = require('../../utils/product.js');
+const imageLocal = require('../../utils/image-local.js');
 
 Page({
     data: {
@@ -36,15 +37,24 @@ Page({
             const isClaim = p.kind === 'CLAIM';
             const images = this.parseImages(p.images);
             const cover = coverOf(p);
-            this.setData({
-                product: p,
-                isClaim: isClaim,
-                priceText: isClaim ? '免费申领（仅付运费）' : ('¥' + p.price),
-                images: images.length ? images : (cover ? [cover] : []),
-                coverUrl: cover,
-                viewState: 'ready'
+            const gallery = images.length ? images : (cover ? [cover] : []);
+            // 真机 <image>/rich-text 不支持 http 图片，统一落成本地文件再渲染
+            return Promise.all([
+                imageLocal.toLocal(cover),
+                imageLocal.toLocalList(gallery),
+                imageLocal.hydrateDescription(p.description)
+            ]).then(result => {
+                p.description = result[2];
+                this.setData({
+                    product: p,
+                    isClaim: isClaim,
+                    priceText: isClaim ? '免费申领（仅付运费）' : ('¥' + p.price),
+                    images: result[1].length ? result[1] : (result[0] ? [result[0]] : []),
+                    coverUrl: result[0] || '',
+                    viewState: 'ready'
+                });
+                if (done) done();
             });
-            if (done) done();
         }).catch(err => {
             this.setData({ viewState: 'error', errorMsg: (err && err.message) || '加载失败' });
             if (done) done();

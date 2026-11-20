@@ -1,5 +1,6 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
+const imageLocal = require('../../utils/image-local.js');
 
 const STATUS = { PUBLISHED: '报名中', ONGOING: '进行中', FINISHED: '已结束', CANCELLED: '已取消' };
 
@@ -38,14 +39,21 @@ Page({
         }
         api(app).activityDetail(id).then(res => {
             const a = res || {};
-            this.setData({
-                activity: a,
-                statusText: STATUS[a.status] || a.status,
-                startText: this.formatTime(a.startTime),
-                endText: this.formatTime(a.endTime),
-                viewState: 'ready'
+            return Promise.all([
+                imageLocal.toLocal(a.coverUrl),
+                imageLocal.hydrateDescription(a.description)
+            ]).then(result => {
+                a.coverUrl = result[0] || '';
+                a.description = result[1];
+                this.setData({
+                    activity: a,
+                    statusText: STATUS[a.status] || a.status,
+                    startText: this.formatTime(a.startTime),
+                    endText: this.formatTime(a.endTime),
+                    viewState: 'ready'
+                });
+                if (done) done();
             });
-            if (done) done();
         }).catch(err => {
             this.setData({ viewState: 'error', errorMsg: (err && err.message) || '加载失败' });
             if (done) done();

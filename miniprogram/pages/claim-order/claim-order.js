@@ -1,5 +1,6 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
+const imageLocal = require('../../utils/image-local.js');
 
 const REGIONS = ['全国', '华东', '华北', '华南', '西南', '西北'];
 
@@ -52,16 +53,19 @@ Page({
                 if (addresses[i].isDefault == 1) { addressIndex = i; break; }
             }
             if (addressIndex < 0 && addresses.length > 0) addressIndex = 0;
-            this.setData({
-                product: product,
-                addresses: addresses,
-                addressTexts: addressTexts,
-                addressIndex: addressIndex,
-                addressId: addressIndex >= 0 ? addresses[addressIndex].id : '',
-                viewState: 'ready'
+            return imageLocal.toLocal(product.coverUrl).then(path => {
+                product.coverUrl = path || '';
+                this.setData({
+                    product: product,
+                    addresses: addresses,
+                    addressTexts: addressTexts,
+                    addressIndex: addressIndex,
+                    addressId: addressIndex >= 0 ? addresses[addressIndex].id : '',
+                    viewState: 'ready'
+                });
+                this.calcFreight();
+                if (done) done();
             });
-            this.calcFreight();
-            if (done) done();
         }).catch(err => {
             this.setData({ viewState: 'error', errorMsg: (err && err.message) || '加载失败' });
             if (done) done();

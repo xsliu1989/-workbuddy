@@ -1,5 +1,6 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
+const imageLocal = require('../../utils/image-local.js');
 
 Page({
     data: {
@@ -29,8 +30,10 @@ Page({
         this.setData({ viewState: 'loading', errorMsg: '' });
         api(app).contentList(1, 50).then(res => {
             const all = (res && res.records) || [];
-            this.setData({ contents: all.filter(c => c.kind !== 'OA'), viewState: 'ready' });
-            if (done) done();
+            return imageLocal.hydrateCovers(all.filter(c => c.kind !== 'OA')).then(list => {
+                this.setData({ contents: list, viewState: 'ready' });
+                if (done) done();
+            });
         }).catch(err => {
             this.setData({ viewState: 'error', errorMsg: (err && err.message) || '加载失败' });
             if (done) done();
@@ -47,14 +50,17 @@ Page({
         }
         api(app).contentDetail(id).then(res => {
             const c = res || {};
-            this.setData({
-                content: c,
-                isVideo: c.kind === 'VIDEO',
-                timeText: this.formatTime(c.publishedAt),
-                shareCount: c.shareCount || 0,
-                viewState: 'ready'
+            return imageLocal.toLocal(c.coverUrl).then(path => {
+                c.coverUrl = path || '';
+                this.setData({
+                    content: c,
+                    isVideo: c.kind === 'VIDEO',
+                    timeText: this.formatTime(c.publishedAt),
+                    shareCount: c.shareCount || 0,
+                    viewState: 'ready'
+                });
+                if (done) done();
             });
-            if (done) done();
         }).catch(err => {
             this.setData({ viewState: 'error', errorMsg: (err && err.message) || '加载失败' });
             if (done) done();

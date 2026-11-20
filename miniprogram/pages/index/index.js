@@ -1,5 +1,6 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
+const imageLocal = require('../../utils/image-local.js');
 
 const STATUS = { PUBLISHED: '报名中', ONGOING: '进行中', FINISHED: '已结束', CANCELLED: '已取消' };
 
@@ -38,9 +39,13 @@ Page({
         // 公益动态 + 公众号精选（kind=OA 的条目从动态中拆出）
         api(app).contentList(1, 50).then(res => {
             const all = (res && res.records) || [];
-            this.setData({
-                contents: all.filter(c => c.kind !== 'OA'),
-                oaArticles: all.filter(c => c.kind === 'OA').slice(0, 6)
+            const contents = all.filter(c => c.kind !== 'OA');
+            const oaArticles = all.filter(c => c.kind === 'OA').slice(0, 6);
+            return Promise.all([
+                imageLocal.hydrateCovers(contents),
+                imageLocal.hydrateCovers(oaArticles)
+            ]).then(list => {
+                this.setData({ contents: list[0], oaArticles: list[1] });
             });
         }).catch(() => {}).then(finishOne);
 
@@ -51,7 +56,9 @@ Page({
                 startText: this.formatTime(a.startTime)
             }));
             const open = all.filter(a => a.status === 'PUBLISHED' || a.status === 'ONGOING');
-            this.setData({ activities: (open.length ? open : all).slice(0, 3) });
+            return imageLocal.hydrateCovers((open.length ? open : all).slice(0, 3)).then(list => {
+                this.setData({ activities: list });
+            });
         }).catch(() => {}).then(finishOne);
     },
 

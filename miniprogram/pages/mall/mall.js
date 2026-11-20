@@ -1,6 +1,7 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
 const { coverOf } = require('../../utils/product.js');
+const imageLocal = require('../../utils/image-local.js');
 
 function decorate(p) {
     p.priceText = p.kind === 'CLAIM' ? '免费申领' : ('¥' + p.price);
@@ -27,14 +28,17 @@ Page({
         api(app).products(1, 12, kind).then(res => {
             const records = ((res && res.records) || []).map(decorate);
             const total = (res && res.total) || 0;
-            this.setData({
-                products: records,
-                current: 1,
-                total: total,
-                hasMore: records.length < total,
-                viewState: 'ready'
+            // 真机 <image> 不支持 http 图片：先下载到本地用户目录再显示
+            return imageLocal.hydrateCovers(records).then(list => {
+                this.setData({
+                    products: list,
+                    current: 1,
+                    total: total,
+                    hasMore: list.length < total,
+                    viewState: 'ready'
+                });
+                if (done) done();
             });
-            if (done) done();
         }).catch(() => {
             this.setData({ viewState: 'error' });
             if (done) done();
@@ -55,12 +59,14 @@ Page({
         const next = d.current + 1;
         api(app).products(next, 12, d.activeKind).then(res => {
             const records = ((res && res.records) || []).map(decorate);
-            const all = d.products.concat(records);
-            this.setData({
-                products: all,
-                current: next,
-                total: (res && res.total) || d.total,
-                hasMore: all.length < ((res && res.total) || d.total)
+            return imageLocal.hydrateCovers(records).then(list => {
+                const all = d.products.concat(list);
+                this.setData({
+                    products: all,
+                    current: next,
+                    total: (res && res.total) || d.total,
+                    hasMore: all.length < ((res && res.total) || d.total)
+                });
             });
         }).catch(err => wx.showToast({ icon: 'none', title: err.message }));
     },

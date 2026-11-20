@@ -1,6 +1,7 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
 const { coverOf } = require('../../utils/product.js');
+const imageLocal = require('../../utils/image-local.js');
 
 Page({
     data: {
@@ -26,8 +27,10 @@ Page({
                 if (!p.coverUrl) p.coverUrl = coverOf(p);
                 return p;
             });
-            this.setData({ products: products, viewState: 'ready' });
-            if (done) done();
+            return imageLocal.hydrateCovers(products).then(list => {
+                this.setData({ products: list, viewState: 'ready' });
+                if (done) done();
+            });
         }).catch(err => {
             this.setData({ viewState: 'error', errorMsg: (err && err.message) || '加载失败' });
             if (done) done();

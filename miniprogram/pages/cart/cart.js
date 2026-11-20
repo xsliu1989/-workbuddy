@@ -1,6 +1,7 @@
 const app = getApp();
 const { api } = require('../../utils/api.js');
 const { coverOf } = require('../../utils/product.js');
+const imageLocal = require('../../utils/image-local.js');
 
 Page({
     data: {
@@ -35,9 +36,11 @@ Page({
                     lineText: (price * qty).toFixed(2)
                 };
             });
-            this.setData({ items: items, viewState: 'ready' });
-            this.recalc();
-            if (done) done();
+            return imageLocal.hydrateCovers(items).then(list => {
+                this.setData({ items: list, viewState: 'ready' });
+                this.recalc();
+                if (done) done();
+            });
         }).catch(() => {
             this.setData({ viewState: 'error' });
             if (done) done();
