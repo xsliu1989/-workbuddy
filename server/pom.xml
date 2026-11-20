@@ -63,11 +63,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- H2 内存库：仅用于上下文装配冒烟测试，不进入生产包 -->
+        <!-- H2 内存库：用于 demo 免配置启动模式与上下文冒烟测试 -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
