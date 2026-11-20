@@ -31,7 +31,7 @@ If the working tree is clean and the ahead count is 0, report "无改动且无�
 Execute the bundled script, passing a short Chinese commit message that summarizes the actual changes:
 
 ```bash
-bash "C:/Users/Administrator/.workbuddy/skills/github-auto-sync/scripts/git_auto_sync.sh" \
+bash "C:/Users/Administrator/.workbuddy/skills/github-auto-sync/git_auto_sync.sh" \
   --repo "F:/codex-lvyi" \
   --message "自动同步: <一句话概括本次改动>"
 ```
@@ -42,7 +42,7 @@ If no `--message` is provided, the script generates a summary from the changed f
 
 ### Step 3: Interpret the result
 
-- On success: report the short commit hash, number of files changed, and that the push to `origin/main` was verified. Always include the `本次上传的文件` list printed by the script in the final reply to the user, with each file path and its status (新增/修改/删除/重命名). Never summarize the list as just a count.
+- On success: report the short commit hash, number of files changed, and that the push to `origin/main` was verified. Always include the `本次上传的文件` list printed by the script in the final reply to the user, with each file path and its status (新增/修改/删除/重命名). Never summarize the list as just a count. Also include the `[auto-sync][CMD]` lines from the script output (or a concise ordered list of them) so the user can see which commands ran and where a failure occurred.
 - On `无改动`: report that nothing was pushed.
 - On `敏感文件` or `大文件` errors: do not bypass, do not use `--force`, and do not edit the checks. Tell the user exactly which files were blocked and ask whether to remove them or add a justified ignore rule.
 - On push failure: report that the local commit is preserved, include the error, and ask the user before any manual recovery.
@@ -61,6 +61,6 @@ Run `git -C "F:/codex-lvyi" status --short --branch` and include the tracking st
 
 ## Resources
 
-### scripts/git_auto_sync.sh
+### git_auto_sync.sh
 
-Deterministic sync script. It validates the remote URL and repo path, stages changes, scans staged files for sensitive filenames and credential-like content, rejects files larger than 50 MB, commits with the supplied or generated message, pushes to `origin/main` (retrying with HTTP/1.1, an OpenSSL SSL backend, and then once after a rebase if the remote moved or the connection drops), verifies that the remote HEAD matches the local commit, and finally prints every uploaded file with its change status. If the remote cannot be queried because of a network error after a successful push, the script reports a warning instead of a failure.
+Deterministic sync script located at the skill root (imported from the project repository). It prints every step as `[auto-sync][STEP]` and every executed command as `[auto-sync][CMD]`, validates the remote URL and repo path, stages changes, scans staged files for sensitive filenames and credential-like content, rejects files larger than 50 MB, commits with the supplied or generated message, pushes to `origin/main` (retrying with HTTP/1.1, an OpenSSL SSL backend, and then once after a rebase if the remote moved or the connection drops), verifies that the remote HEAD matches the local commit, and finally prints every uploaded file with its change status. If the remote cannot be queried because of a network error after a successful push, the script reports a warning instead of a failure.
