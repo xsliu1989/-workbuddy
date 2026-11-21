@@ -20,7 +20,8 @@
     "pages/order-detail/order-detail",
     "pages/login/login",
     "pages/product-detail/product-detail",
-    "pages/webview/webview"
+    "pages/webview/webview",
+    "pages/diagnose/diagnose"
   ],
   "window": {
     "navigationBarTitleText": "绿益公益",

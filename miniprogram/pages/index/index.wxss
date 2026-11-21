@@ -1,3 +1,7 @@
+.load-error { background: #fdecec; border: 2rpx solid #f5c2c2; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 20rpx; }
+.le-title { font-size: 28rpx; font-weight: 600; color: #b42318; }
+.le-detail { font-size: 24rpx; color: #8a2a22; margin-top: 8rpx; line-height: 1.5; word-break: break-all; }
+
 .brand-card { background: linear-gradient(135deg,#2e7d5b,#1f5e44); border-radius: 24rpx; padding: 32rpx; color: #fff; }
 .brand-logo { width: 88rpx; height: 88rpx; border-radius: 20rpx; background: rgba(255,255,255,0.18); font-size: 48rpx; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-right: 24rpx; }
 .brand-name { font-size: 40rpx; font-weight: 700; }

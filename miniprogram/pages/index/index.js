@@ -8,6 +8,7 @@ const STATUS = { PUBLISHED: '报名中', ONGOING: '进行中', FINISHED: '已结
 Page({
     data: {
         viewState: 'loading',
+        loadError: '',
         contents: [],
         oaArticles: [],
         activities: [],
@@ -26,8 +27,19 @@ Page({
     onLoad() { this.loadData(); },
     onPullDownRefresh() { this.loadData(() => wx.stopPullDownRefresh()); },
 
+    // 记录接口失败原因，便于真机调试时定位（不再静默吞掉）
+    reportError(tag, err) {
+        const msg = (err && err.message) || String(err || '未知错误');
+        console.error('[首页][' + tag + ']', msg);
+        this.setData({ loadError: (this.data.loadError ? this.data.loadError + '；' : '') + tag + '：' + msg });
+    },
+
+    openDiagnose() {
+        wx.navigateTo({ url: '/pages/diagnose/diagnose' });
+    },
+
     loadData(done) {
-        this.setData({ viewState: 'loading' });
+        this.setData({ viewState: 'loading', loadError: '' });
         let pending = 2;
         const finishOne = () => {
             pending -= 1;
@@ -48,7 +60,7 @@ Page({
             ]).then(list => {
                 this.setData({ contents: list[0], oaArticles: list[1] });
             });
-        }).catch(() => {}).then(finishOne);
+        }).catch(err => this.reportError('公益动态', err)).then(finishOne);
 
         // 公益活动：优先展示报名中/进行中的活动
         api(app).activityList(1, 20).then(res => {
@@ -61,7 +73,7 @@ Page({
             return imageLocal.hydrateCovers((open.length ? open : all).slice(0, 3)).then(list => {
                 this.setData({ activities: list });
             });
-        }).catch(() => {}).then(finishOne);
+        }).catch(err => this.reportError('公益活动', err)).then(finishOne);
     },
 
     goPage(e) {

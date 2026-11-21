@@ -1,0 +1,18 @@
+.container { padding: 24rpx; }
+.tip { font-size: 26rpx; color: #666; background: #fffbe6; padding: 20rpx; border-radius: 12rpx; margin-bottom: 24rpx; line-height: 1.6; }
+.block { background: #fff; border-radius: 16rpx; padding: 24rpx; margin-bottom: 24rpx; }
+.block-title { font-size: 30rpx; font-weight: 600; color: #2e7d5b; margin-bottom: 16rpx; }
+.kv { display: flex; font-size: 26rpx; padding: 10rpx 0; border-bottom: 1rpx solid #f0f0f0; }
+.kv .k { width: 160rpx; color: #888; flex-shrink: 0; }
+.kv .v { flex: 1; color: #333; word-break: break-all; }
+.result { padding: 18rpx; border-radius: 12rpx; margin-bottom: 16rpx; background: #f7f7f7; }
+.result.ok { background: #eaf7ef; }
+.result.fail { background: #fdecec; }
+.result-head { display: flex; justify-content: space-between; align-items: center; }
+.rname { font-size: 28rpx; font-weight: 600; color: #333; }
+.badge { font-size: 24rpx; padding: 4rpx 16rpx; border-radius: 20rpx; }
+.badge.ok { background: #2e7d5b; color: #fff; }
+.badge.fail { background: #d94343; color: #fff; }
+.rdetail { font-size: 24rpx; color: #555; margin-top: 10rpx; line-height: 1.5; word-break: break-all; }
+.conclusion { font-size: 28rpx; color: #333; line-height: 1.7; }
+.retry { margin-top: 12rpx; background: #2e7d5b; color: #fff; border-radius: 44rpx; }

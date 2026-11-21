@@ -1,4 +1,8 @@
 <view class="container">
+    <view wx:if="{{loadError}}" class="load-error" bindtap="openDiagnose">
+        <view class="le-title">数据加载失败（点此诊断）</view>
+        <view class="le-detail">{{loadError}}</view>
+    </view>
     <view class="brand-card">
         <view class="row">
             <view class="brand-logo">绿</view>
