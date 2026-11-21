@@ -2,6 +2,8 @@
 # 构建上下文：server/ 目录（即 Dockerfile 所在目录）
 # 端口：容器监听 8080，与 application.yml / application-cloud.yml 的 server.port 一致；
 #       云托管控制台「端口」必须填 8080（不是默认的 80）。
+# 配置：JAVA_OPTS 中内置 -Dspring.profiles.active=cloud，云端强制走 application-cloud.yml，
+#       否则会退回到 application.yml 里的本地数据库地址 192.168.0.102 导致启动失败。
 
 # ---------- 阶段一：编译打包 ----------
 FROM maven:3.9-eclipse-temurin-8 AS builder
@@ -22,7 +24,7 @@ FROM eclipse-temurin:8-jre-jammy
 WORKDIR /app
 ENV TZ=Asia/Shanghai \
     LANG=C.UTF-8 \
-    JAVA_OPTS="-Dfile.encoding=UTF-8 -Duser.timezone=Asia/Shanghai -XX:+UseG1GC"
+    JAVA_OPTS="-Dfile.encoding=UTF-8 -Duser.timezone=Asia/Shanghai -XX:+UseG1GC -Dspring.profiles.active=cloud"
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
     && mkdir -p /app/uploads
 COPY --from=builder /build/target/charity-miniprogram-server-1.0.0.jar /app/app.jar
