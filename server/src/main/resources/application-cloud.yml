@@ -1,0 +1,71 @@
+# 微信云托管配置：通过 --spring.profiles.active=cloud 激活（Dockerfile 已设置）
+# 所有敏感信息从云托管「环境变量」注入，切勿写死在文件里。
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: greenyi-charity
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 云托管 MySQL 内网地址，形如 10.x.x.x:3306；账号密码由平台下发
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jackson:
+    time-zone: Asia/Shanghai
+    date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non_null
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+  # 表结构需先手动导入 schema.sql（云托管不会自动建表），导入后保持 never
+  sql:
+    init:
+      mode: never
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.greenyi.charity.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    # 云端关闭 SQL 打印，避免日志刷屏
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+greenyi:
+  jwt:
+    secret: ${JWT_SECRET}
+    expire-hours: 72
+  admin:
+    mock-openid-prefix: mock-openid-
+  wechat:
+    # 真实登录需配置 AppID/AppSecret；callContainer 免鉴权场景下也建议配置，
+    # 便于用 header 里的 openid 兜底。留空则走 mock 登录。
+    app-id: ${WX_APPID:}
+    app-secret: ${WX_APPSECRET:}
+  integration:
+    wechat-pay-mock: true
+    ai-mock: true
+    oss-mock: true
+  upload:
+    # local=写容器内磁盘（重启丢图，仅调试）；cos=微信云托管对象存储（推荐）
+    mode: ${UPLOAD_MODE:cos}
+    dir: ${UPLOAD_DIR:./uploads}
+  # 对象存储（COS）凭证：微信云托管控制台「对象存储」页可获取/授权
+  cos:
+    bucket: ${COS_BUCKET}
+    region: ${COS_REGION:ap-shanghai}
+    secret-id: ${COS_SECRET_ID:}
+    secret-key: ${COS_SECRET_KEY:}
+    # 对外访问域名；留空则拼 https://{bucket}.cos.{region}.myqcloud.com
+    public-base-url: ${COS_PUBLIC_URL:}
+
+logging:
+  level:
+    com.greenyi.charity: info

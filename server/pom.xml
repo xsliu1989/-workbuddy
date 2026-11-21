@@ -22,6 +22,7 @@
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <jjwt.version>0.9.1</jjwt.version>
         <hutool.version>5.8.28</hutool.version>
+        <cos.version>5.6.228</cos.version>
     </properties>
 
     <dependencies>
@@ -47,6 +48,12 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
             <version>${jjwt.version}</version>
+        </dependency>
+        <!-- 腾讯云 COS SDK：微信云托管对象存储图片上传（仅 cloud profile 使用） -->
+        <dependency>
+            <groupId>com.qcloud</groupId>
+            <artifactId>cos_api</artifactId>
+            <version>${cos.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.hutool</groupId>

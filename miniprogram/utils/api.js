@@ -2,6 +2,7 @@
  * API 汇总：所有业务接口集中于此，页面只调用本文件方法
  */
 const { request } = require('./request.js');
+const { uploadImage } = require('./upload.js');
 
 function api(app) {
     const call = (url, method, data, needAuth) => request(app, { url, method, data, needAuth });
@@ -10,31 +11,8 @@ function api(app) {
         // 认证
         resolvePhone: (code) => call('/auth/phone', 'POST', { code }, false),
 
-        // 图片上传：filePath 为本地临时路径，返回 /uploads/... 相对地址（已转绝对地址）
-        uploadImage: (filePath) => new Promise((resolve, reject) => {
-            const header = {};
-            if (app.globalData.token) header['X-Token'] = app.globalData.token;
-            wx.uploadFile({
-                url: app.globalData.baseUrl + '/upload/image',
-                filePath: filePath,
-                name: 'file',
-                header: header,
-                success(res) {
-                    let body = res.data;
-                    if (typeof body === 'string') {
-                        try { body = JSON.parse(body); } catch (e) { reject(new Error('上传返回异常')); return; }
-                    }
-                    if (body && body.code === 0) {
-                        let url = body.data.url;
-                        if (url && url.indexOf('/uploads/') === 0) url = app.globalData.baseUrl + url;
-                        resolve(url);
-                    } else {
-                        reject(new Error((body && body.message) || '上传失败'));
-                    }
-                },
-                fail() { reject(new Error('上传失败，请检查网络与后台服务')); }
-            });
-        }),
+        // 图片上传：本地走后端 /upload/image，云托管走对象存储直传（见 utils/upload.js）
+        uploadImage: (filePath) => uploadImage(app, filePath),
 
         // 首页内容/推荐
         contentList: (current, size, kind) => call('/content/list?current=' + current + '&size=' + size + (kind ? '&kind=' + kind : ''), 'GET', null, false),
