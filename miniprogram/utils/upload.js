@@ -2,7 +2,8 @@
  * 图片上传（本地 / 云端公网域名 双通道），返回可直接展示的图片 URL。
  * - 本地：wx.uploadFile 到 app.globalData.baseUrl + /upload/image（后端 local 模式写磁盘）
  * - 云端：wx.uploadFile 到 cloud.publicBase + /upload/image（后端 cos 模式上传 COS，返回完整 https URL）
- *   之所以不走 wx.cloud.uploadFile：当前环境未在小程序云开发账号下绑定，云上传会失败。
+ *   上传仍走公网域名（需 uploadFile 合法域名）：callContainer 不擅长传 multipart 文件；
+ *   且甲方主要是「查看」数据，上传仅管理端/运营场景需要，真机上传时配一次 uploadFile 合法域名即可。
  *
  * 云端后端 UPLOAD_MODE=cos、桶公有读，返回形如 https://bucket.cos.../uploads/xxx 的永久链接。
  */

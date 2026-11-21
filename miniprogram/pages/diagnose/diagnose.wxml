@@ -4,13 +4,14 @@
     <view class="block">
         <view class="block-title">① 当前配置</view>
         <view class="kv"><text class="k">云模式</text><text class="v">{{cfg.useCloud}}</text></view>
+        <view class="kv"><text class="k">环境ID</text><text class="v">{{cfg.env}}</text></view>
+        <view class="kv"><text class="k">服务名</text><text class="v">{{cfg.service}}</text></view>
         <view class="kv"><text class="k">公网域名</text><text class="v">{{cfg.publicBase}}</text></view>
-        <view class="kv"><text class="k">图片域名</text><text class="v">{{cfg.fileBase}}</text></view>
     </view>
 
     <view class="block">
-        <view class="block-title">② 公网域名连通测试</view>
-        <view class="result {{item.ok ? 'ok' : 'fail'}}" wx:for="{{tests}}" wx:key="name">
+        <view class="block-title">② 内部通道 callContainer（甲方真机走这条，免域名）</view>
+        <view class="result {{item.ok ? 'ok' : 'fail'}}" wx:for="{{containerTests}}" wx:key="name">
             <view class="result-head">
                 <text class="rname">{{item.name}}</text>
                 <text class="badge {{item.ok ? 'ok' : 'fail'}}">{{item.ok ? '成功' : '失败'}}</text>
@@ -20,7 +21,18 @@
     </view>
 
     <view class="block">
-        <view class="block-title">③ 结论</view>
+        <view class="block-title">③ 公网域名兜底通道</view>
+        <view class="result {{item.ok ? 'ok' : 'fail'}}" wx:for="{{httpTests}}" wx:key="name">
+            <view class="result-head">
+                <text class="rname">{{item.name}}</text>
+                <text class="badge {{item.ok ? 'ok' : 'fail'}}">{{item.ok ? '成功' : '失败'}}</text>
+            </view>
+            <view class="rdetail">{{item.detail}}</view>
+        </view>
+    </view>
+
+    <view class="block">
+        <view class="block-title">④ 结论</view>
         <view class="conclusion">{{conclusion}}</view>
     </view>
 

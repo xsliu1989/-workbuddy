@@ -1,8 +1,9 @@
 /**
  * 网络请求封装（本地 / 微信云托管 双通道）
  * - 本地：wx.request 访问 app.globalData.baseUrl
- * - 云托管：wx.request 直连云端公网域名（绕开 callContainer 的 Invalid host 问题；路径需带 /api）
- *   要求：小程序后台把公网域名加入 request 合法域名。
+ * - 云托管：优先 wx.cloud.callContainer（走小程序云开发环境 ID，免域名/免备案，真机/异地直接可用），
+ *   失败自动回退 wx.request 直连公网域名（需在小程序后台把公网域名加入 request 合法域名）。
+ *   callContainer 的 path 需带 context-path /api，header 带 X-WX-SERVICE。
  * - 自动携带 X-Token；统一解析后端 Result {code,message,data}
  */
 
@@ -66,10 +67,35 @@ function requestLocal(app, options, header, settle) {
     });
 }
 
-function requestCloud(app, options, header, settle) {
+// 云通道 ①：callContainer（走小程序云开发环境，免域名/免备案）
+function requestCloudViaContainer(app, options, header, settle) {
     const { url, method, data } = options;
-    // 走公网域名直连：https://<服务域名>/api<url>
-    const base = String(app.globalData.cloud.publicBase || '').replace(/\/$/, '');
+    const cfg = app.globalData.cloud || {};
+    if (!wx.cloud || !wx.cloud.callContainer || !cfg.env || !cfg.service) {
+        settle.reject(new Error('callContainer 不可用（基础库/环境ID/服务名缺失）'));
+        return;
+    }
+    // callContainer 的 path 是容器内路径，必须带 context-path /api
+    const path = '/api' + url;
+    const ccHeader = Object.assign({}, header, { 'X-WX-SERVICE': cfg.service });
+    wx.cloud.callContainer({
+        config: { env: cfg.env },
+        path: path,
+        method: method,
+        data: data || {},
+        header: ccHeader,
+        success(res) {
+            if (res.statusCode !== 200) { settle.reject(new Error('callContainer 状态(' + res.statusCode + ')')); return; }
+            handleBody(res.data, app, settle.resolve, settle.reject);
+        },
+        fail(err) { settle.reject(new Error('callContainer 失败：' + ((err && err.errMsg) || ''))); }
+    });
+}
+
+// 云通道 ②：公网域名直连（兜底；需在小程序后台配 request 合法域名）
+function requestCloudViaHttp(app, options, header, settle) {
+    const { url, method, data } = options;
+    const base = String((app.globalData.cloud || {}).publicBase || '').replace(/\/$/, '');
     if (!base) { settle.reject(new Error('云端公网域名未配置（cloud.publicBase）')); return; }
     wx.request({
         url: base + '/api' + url,
@@ -82,6 +108,18 @@ function requestCloud(app, options, header, settle) {
         },
         fail(err) {
             settle.reject(new Error('连不上云端(' + base + ')：' + ((err && err.errMsg) || '请确认公网域名可访问、已加入 request 合法域名')));
+        }
+    });
+}
+
+function requestCloud(app, options, header, settle) {
+    // 优先 callContainer；失败则自动回退公网域名。
+    // 这样甲方真机扫码走免域名的内部通道；开发者工具/内部通道异常时仍可用公网域名兜底。
+    requestCloudViaContainer(app, options, header, {
+        resolve: settle.resolve,
+        reject(err) {
+            console.warn('[云通道] callContainer 失败，回退公网域名：', err && err.message);
+            requestCloudViaHttp(app, options, header, settle);
         }
     });
 }

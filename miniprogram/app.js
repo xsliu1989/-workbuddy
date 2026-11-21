@@ -8,23 +8,25 @@ const DEFAULT_BASE_URL = 'http://173.129.1.155:8080/api';
 
 /**
  * 微信云托管配置（云模式）
- * - publicBase：云端服务的「公网访问域名」+ /api 之外的根地址。数据请求与图片上传都走它，
- *   用 wx.request / wx.uploadFile 直连（需要在小程序后台把它加入 request/uploadFile 合法域名）。
- *   之所以不走 wx.cloud.callContainer：当前环境未在小程序云开发账号下绑定，callContainer 会报 Invalid host。
- * - env / service：保留作备用（callContainer 通道），只有在小程序后台开通云开发并绑定该环境后才可用。
- * - fileBase：对象存储固定访问域名（需 bucket 公有读），用于拼图片地址。
+ * - 数据请求策略：callContainer 优先（用小程序云开发环境 ID，免域名/免备案，异地用户扫码即可看），
+ *   失败自动回退公网域名 wx.request。两条通道互为兜底。
+ * - env / service：callContainer 参数。env 必须是「小程序云开发环境 ID」（微信开发者工具 → 云开发控制台可见），
+ *   不是腾讯云侧的环境名。之前误填 prod-d1gzglnv95abda853 导致 Invalid host，已改为真实环境 ID。
+ * - publicBase：云端「公网访问域名」根地址，作为 callContainer 失败时的兜底通道。
+ * - fileBase：对象存储固定访问域名（需 bucket 公有读），用于拼图片地址；图片显示走 COS，配 downloadFile 合法域名。
  * - 云模式开关存 storage 'greenyi_use_cloud'；默认已开启（正式发布）。
  *   临时切回本地调试，在控制台执行：wx.setStorageSync('greenyi_use_cloud', false)
  *   再执行 wx.clearStorageSync() 清掉旧的云配置缓存，然后重新编译。
- * - 当前云环境参数（已按实际环境填好）：
+ * - 当前参数（已按实际环境填好）：
  *     publicBase = https://greenyi2-351648-4-1385789266.sh.run.tcloudbase.com
- *     env        = prod-d1gzglnv95abda853
- *     service    = greenyi2
+ *     env        = cloud1-2gau8nf2b470fa10（小程序云开发环境 ID）
+ *     service    = greenyi2（云托管服务名）
  *     fileBase   = https://lvyi-1385789266.cos.ap-guangzhou.myqcloud.com（桶需公有读）
  */
 const CLOUD_DEFAULTS = {
     publicBase: 'https://greenyi2-351648-4-1385789266.sh.run.tcloudbase.com',
-    env: 'prod-d1gzglnv95abda853',
+    // 小程序云开发环境 ID（来自微信开发者工具云开发控制台），不是腾讯云侧环境名 prod-xxx
+    env: 'cloud1-2gau8nf2b470fa10',
     service: 'greenyi2',
     fileBase: 'https://lvyi-1385789266.cos.ap-guangzhou.myqcloud.com'
 };
@@ -34,9 +36,15 @@ function read(key, fallback) {
 }
 
 function resolveCloudConfig() {
+    // 防御：真机若残留旧的错误环境 ID（腾讯云侧 prod-xxx 环境名），忽略它，避免覆盖正确的云开发环境 ID
+    let env = read('greenyi_cloud_env', CLOUD_DEFAULTS.env);
+    if (typeof env === 'string' && env.indexOf('prod-') === 0) {
+        try { wx.removeStorageSync('greenyi_cloud_env'); } catch (e) { /* 忽略 */ }
+        env = CLOUD_DEFAULTS.env;
+    }
     return {
         publicBase: read('greenyi_cloud_publicbase', CLOUD_DEFAULTS.publicBase),
-        env: read('greenyi_cloud_env', CLOUD_DEFAULTS.env),
+        env: env,
         service: read('greenyi_cloud_service', CLOUD_DEFAULTS.service),
         fileBase: read('greenyi_cloud_filebase', CLOUD_DEFAULTS.fileBase)
     };
@@ -54,10 +62,10 @@ App({
     },
 
     onLaunch() {
-        // 云模式下数据走公网域名直连，不再依赖 wx.cloud.callContainer。
-        // 仍初始化 wx.cloud 仅为了图片上传等潜在的兼容场景；即使未开通云开发也不影响主链路。
+        // 云模式下数据优先走 wx.cloud.callContainer（需 wx.cloud.init 到正确的云开发环境 ID）。
+        // 现在云开发已开通、环境 ID 已校准，callContainer 应可直接用；失败时 request.js 会自动回退公网域名。
         if (this.globalData.useCloud && wx.cloud) {
-            try { wx.cloud.init({ env: this.globalData.cloud.env, traceUser: true }); } catch (e) { /* 忽略：主链路不依赖 */ }
+            try { wx.cloud.init({ env: this.globalData.cloud.env, traceUser: true }); } catch (e) { /* 忽略：失败会回退公网域名 */ }
         }
         const token = wx.getStorageSync('token');
         const userInfo = wx.getStorageSync('userInfo');
