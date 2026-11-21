@@ -17,15 +17,15 @@ const DEFAULT_BASE_URL = 'http://173.129.1.155:8080/api';
  *   临时切回本地调试，在控制台执行：wx.setStorageSync('greenyi_use_cloud', false)
  *   再执行 wx.clearStorageSync() 清掉旧的云配置缓存，然后重新编译。
  * - 当前云环境参数（已按实际环境填好）：
- *     publicBase = https://springboot-cvbe-351648-4-1385789266.sh.run.tcloudbase.com
+ *     publicBase = https://greenyi2-351648-4-1385789266.sh.run.tcloudbase.com
  *     env        = prod-d1gzglnv95abda853
- *     service    = springboot
+ *     service    = greenyi2
  *     fileBase   = https://lvyi-1385789266.cos.ap-guangzhou.myqcloud.com（桶需公有读）
  */
 const CLOUD_DEFAULTS = {
-    publicBase: 'https://springboot-cvbe-351648-4-1385789266.sh.run.tcloudbase.com',
+    publicBase: 'https://greenyi2-351648-4-1385789266.sh.run.tcloudbase.com',
     env: 'prod-d1gzglnv95abda853',
-    service: 'springboot',
+    service: 'greenyi2',
     fileBase: 'https://lvyi-1385789266.cos.ap-guangzhou.myqcloud.com'
 };
 
