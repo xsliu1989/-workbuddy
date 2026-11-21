@@ -16,7 +16,9 @@ function normalizeImageUrls(value, app) {
         if (value.indexOf('/uploads/') < 0) return value;
         let base = app.globalData.baseUrl;
         if (app.globalData.useCloud) {
-            base = String(app.globalData.cloud.fileBase || '').replace(/\/$/, '') + '/api';
+            // 云模式：对象存储里图片路径就是 uploads/xxx（上传时 cloudPath），直接拼桶的固定域名；
+            // 不能再拼 /api —— 云端没有后端静态映射，示例商品的 /uploads/samples/ 需先传到 COS 同名目录。
+            base = String(app.globalData.cloud.fileBase || '').replace(/\/$/, '');
         }
         return value.replace(/(["'\s(]|^)\/uploads\//g, (m, prefix) => prefix + base + '/uploads/');
     }

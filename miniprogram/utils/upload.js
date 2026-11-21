@@ -10,7 +10,8 @@
  */
 
 // true = 桶已设为公有读，直接用固定域名拼永久链接；false = 用临时签名链接
-const PUBLIC_READ = false;
+// 云端已配公有读 COS 桶，这里必须为 true，否则图片链接 2 小时后过期会裂图
+const PUBLIC_READ = true;
 
 function localUpload(app, filePath, header) {
     return new Promise((resolve, reject) => {
