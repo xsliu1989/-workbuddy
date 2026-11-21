@@ -1,0 +1,7 @@
+{
+  "name": "apiProxy",
+  "version": "1.0.0",
+  "description": "小程序云函数反向代理，转发 API 请求到云端后端",
+  "main": "index.js",
+  "dependencies": {}
+}

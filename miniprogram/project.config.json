@@ -37,6 +37,7 @@
   "appid": "wx278ea373d2604af7",
   "projectname": "workbuddy-native-basic",
   "miniprogramRoot": "./",
+  "cloudfunctionRoot": "cloudfunctions/",
   "simulatorPluginLibVersion": {},
   "editorSetting": {}
 }

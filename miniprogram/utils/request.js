@@ -67,7 +67,30 @@ function requestLocal(app, options, header, settle) {
     });
 }
 
-// 云通道 ①：callContainer（走小程序云开发环境，免域名/免备案）
+// 云通道 ①：云函数反向代理（新建，免域名/免备案；真机/异地可用的首选通道）
+function requestCloudViaFunction(app, options, header, settle) {
+    const { url, method, data } = options;
+    if (!wx.cloud || !wx.cloud.callFunction) {
+        settle.reject(new Error('云函数不可用（wx.cloud 未初始化）'));
+        return;
+    }
+    wx.cloud.callFunction({
+        name: 'apiProxy',
+        data: { path: url, method: method, data: data || {}, headers: header },
+        success(res) {
+            const r = res && res.result;
+            if (!r || r.statusCode == null) { settle.reject(new Error('云函数无有效返回：' + JSON.stringify(res).slice(0, 120))); return; }
+            if (r.statusCode !== 200) { settle.reject(new Error('云函数代理错误(' + r.statusCode + ')：' + (r.error || ''))); return; }
+            handleBody(r.body, app, settle.resolve, settle.reject);
+        },
+        fail(err) {
+            const msg = ((err && err.errMsg) || JSON.stringify(err)).slice(0, 160);
+            settle.reject(new Error('云函数调用失败：' + msg + '（若提示 function not found，请先在开发者工具上传 apiProxy 云函数）'));
+        }
+    });
+}
+
+// 云通道 ②：callContainer（走小程序云开发环境，免域名/免备案）
 function requestCloudViaContainer(app, options, header, settle) {
     const { url, method, data } = options;
     const cfg = app.globalData.cloud || {};
@@ -92,7 +115,7 @@ function requestCloudViaContainer(app, options, header, settle) {
     });
 }
 
-// 云通道 ②：公网域名直连（兜底；需在小程序后台配 request 合法域名）
+// 云通道 ③：公网域名直连（兜底；需在小程序后台配 request 合法域名）
 function requestCloudViaHttp(app, options, header, settle) {
     const { url, method, data } = options;
     const base = String((app.globalData.cloud || {}).publicBase || '').replace(/\/$/, '');
@@ -113,13 +136,19 @@ function requestCloudViaHttp(app, options, header, settle) {
 }
 
 function requestCloud(app, options, header, settle) {
-    // 优先 callContainer；失败则自动回退公网域名。
-    // 这样甲方真机扫码走免域名的内部通道；开发者工具/内部通道异常时仍可用公网域名兜底。
-    requestCloudViaContainer(app, options, header, {
+    // 通道优先级：①云函数代理（首选，免域名）→ ②callContainer → ③公网域名。
+    // 云函数是本项目让异地用户免域名访问的核心方案；另两条仅在云函数不可用时兜底。
+    requestCloudViaFunction(app, options, header, {
         resolve: settle.resolve,
-        reject(err) {
-            console.warn('[云通道] callContainer 失败，回退公网域名：', err && err.message);
-            requestCloudViaHttp(app, options, header, settle);
+        reject(err1) {
+            console.warn('[云通道] 云函数代理失败，回退 callContainer：', err1 && err1.message);
+            requestCloudViaContainer(app, options, header, {
+                resolve: settle.resolve,
+                reject(err2) {
+                    console.warn('[云通道] callContainer 失败，回退公网域名：', err2 && err2.message);
+                    requestCloudViaHttp(app, options, header, settle);
+                }
+            });
         }
     });
 }

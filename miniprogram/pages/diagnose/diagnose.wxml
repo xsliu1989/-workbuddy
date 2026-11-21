@@ -1,5 +1,5 @@
 <view class="container">
-    <view class="tip">自动检测云托管连通性，结果如下（可截图发给技术支持）</view>
+    <view class="tip">自动检测云端连通性，结果如下（可截图发给技术支持）</view>
 
     <view class="block">
         <view class="block-title">① 当前配置</view>
@@ -10,7 +10,18 @@
     </view>
 
     <view class="block">
-        <view class="block-title">② 内部通道 callContainer（甲方真机走这条，免域名）</view>
+        <view class="block-title">② 云函数代理 apiProxy（首选，甲方真机走这条，免域名）</view>
+        <view class="result {{item.ok ? 'ok' : 'fail'}}" wx:for="{{fnTests}}" wx:key="name">
+            <view class="result-head">
+                <text class="rname">{{item.name}}</text>
+                <text class="badge {{item.ok ? 'ok' : 'fail'}}">{{item.ok ? '成功' : '失败'}}</text>
+            </view>
+            <view class="rdetail">{{item.detail}}</view>
+        </view>
+    </view>
+
+    <view class="block">
+        <view class="block-title">③ 内部通道 callContainer（备用）</view>
         <view class="result {{item.ok ? 'ok' : 'fail'}}" wx:for="{{containerTests}}" wx:key="name">
             <view class="result-head">
                 <text class="rname">{{item.name}}</text>
@@ -21,7 +32,7 @@
     </view>
 
     <view class="block">
-        <view class="block-title">③ 公网域名兜底通道</view>
+        <view class="block-title">④ 公网域名兜底通道</view>
         <view class="result {{item.ok ? 'ok' : 'fail'}}" wx:for="{{httpTests}}" wx:key="name">
             <view class="result-head">
                 <text class="rname">{{item.name}}</text>
@@ -32,7 +43,7 @@
     </view>
 
     <view class="block">
-        <view class="block-title">④ 结论</view>
+        <view class="block-title">⑤ 结论</view>
         <view class="conclusion">{{conclusion}}</view>
     </view>
 

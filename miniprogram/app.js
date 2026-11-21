@@ -8,11 +8,12 @@ const DEFAULT_BASE_URL = 'http://173.129.1.155:8080/api';
 
 /**
  * 微信云托管配置（云模式）
- * - 数据请求策略：callContainer 优先（用小程序云开发环境 ID，免域名/免备案，异地用户扫码即可看），
- *   失败自动回退公网域名 wx.request。两条通道互为兜底。
- * - env / service：callContainer 参数。env 必须是「小程序云开发环境 ID」（微信开发者工具 → 云开发控制台可见），
- *   不是腾讯云侧的环境名。之前误填 prod-d1gzglnv95abda853 导致 Invalid host，已改为真实环境 ID。
- * - publicBase：云端「公网访问域名」根地址，作为 callContainer 失败时的兜底通道。
+ * - 数据请求策略（三级兜底）：①云函数代理 apiProxy（首选，免域名/免备案，异地用户扫码即可看）
+ *   → ②callContainer → ③公网域名 wx.request。
+ *   云函数部署在小程序云开发环境里，由它在云端请求后端公网域名，绕开「真机合法域名」限制。
+ * - env / service：callContainer 参数。env 是「小程序云开发环境 ID」（微信开发者工具 → 云开发控制台可见），
+ *   service 是云托管服务名。该环境里没有云托管服务时 callContainer 会返回 INVALID_HOST（已知情况，靠云函数通道解决）。
+ * - publicBase：云端「公网访问域名」根地址，兜底通道 + 管理后台入口。
  * - fileBase：对象存储固定访问域名（需 bucket 公有读），用于拼图片地址；图片显示走 COS，配 downloadFile 合法域名。
  * - 云模式开关存 storage 'greenyi_use_cloud'；默认已开启（正式发布）。
  *   临时切回本地调试，在控制台执行：wx.setStorageSync('greenyi_use_cloud', false)
