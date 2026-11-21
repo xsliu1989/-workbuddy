@@ -8,19 +8,22 @@ const DEFAULT_BASE_URL = 'http://173.129.1.155:8080/api';
 
 /**
  * 微信云托管配置（云模式）
- * - env：云托管环境 ID，形如 prod-1gxxxxxx；在云托管控制台「环境」页复制
- * - service：服务名（新建服务时填的名字），用于 callContainer 的 X-WX-SERVICE
- * - fileBase：对象存储固定访问域名（需 bucket 公有读），形如 https://xxx.tcloudbaseapp.com
- * - 开启后：普通接口走 wx.cloud.callContainer（免域名备案），图片走 wx.cloud.uploadFile 直传对象存储
+ * - publicBase：云端服务的「公网访问域名」+ /api 之外的根地址。数据请求与图片上传都走它，
+ *   用 wx.request / wx.uploadFile 直连（需要在小程序后台把它加入 request/uploadFile 合法域名）。
+ *   之所以不走 wx.cloud.callContainer：当前环境未在小程序云开发账号下绑定，callContainer 会报 Invalid host。
+ * - env / service：保留作备用（callContainer 通道），只有在小程序后台开通云开发并绑定该环境后才可用。
+ * - fileBase：对象存储固定访问域名（需 bucket 公有读），用于拼图片地址。
  * - 云模式开关存 storage 'greenyi_use_cloud'；默认已开启（正式发布）。
  *   临时切回本地调试，在控制台执行：wx.setStorageSync('greenyi_use_cloud', false)
  *   再执行 wx.clearStorageSync() 清掉旧的云配置缓存，然后重新编译。
  * - 当前云环境参数（已按实际环境填好）：
- *     env      = prod-d1gzglnv95abda853
- *     service  = springboot（如与云托管服务名不一致请改这里）
- *     fileBase = https://lvyi-1385789266.cos.ap-guangzhou.myqcloud.com（桶需公有读）
+ *     publicBase = https://springboot-cvbe-351648-4-1385789266.sh.run.tcloudbase.com
+ *     env        = prod-d1gzglnv95abda853
+ *     service    = springboot
+ *     fileBase   = https://lvyi-1385789266.cos.ap-guangzhou.myqcloud.com（桶需公有读）
  */
 const CLOUD_DEFAULTS = {
+    publicBase: 'https://springboot-cvbe-351648-4-1385789266.sh.run.tcloudbase.com',
     env: 'prod-d1gzglnv95abda853',
     service: 'springboot',
     fileBase: 'https://lvyi-1385789266.cos.ap-guangzhou.myqcloud.com'
@@ -32,6 +35,7 @@ function read(key, fallback) {
 
 function resolveCloudConfig() {
     return {
+        publicBase: read('greenyi_cloud_publicbase', CLOUD_DEFAULTS.publicBase),
         env: read('greenyi_cloud_env', CLOUD_DEFAULTS.env),
         service: read('greenyi_cloud_service', CLOUD_DEFAULTS.service),
         fileBase: read('greenyi_cloud_filebase', CLOUD_DEFAULTS.fileBase)
@@ -50,12 +54,10 @@ App({
     },
 
     onLaunch() {
-        if (this.globalData.useCloud) {
-            if (wx.cloud) {
-                wx.cloud.init({ env: this.globalData.cloud.env, traceUser: true });
-            } else {
-                console.warn('[云托管] 当前基础库不支持 wx.cloud，请在微信开发者工具中开启云开发');
-            }
+        // 云模式下数据走公网域名直连，不再依赖 wx.cloud.callContainer。
+        // 仍初始化 wx.cloud 仅为了图片上传等潜在的兼容场景；即使未开通云开发也不影响主链路。
+        if (this.globalData.useCloud && wx.cloud) {
+            try { wx.cloud.init({ env: this.globalData.cloud.env, traceUser: true }); } catch (e) { /* 忽略：主链路不依赖 */ }
         }
         const token = wx.getStorageSync('token');
         const userInfo = wx.getStorageSync('userInfo');
@@ -77,17 +79,18 @@ App({
         this.globalData.baseUrl = url;
     },
 
-    // 切换云托管通道：setCloudMode(true, {env, service, fileBase})
+    // 切换云托管通道：setCloudMode(true, {publicBase, env, service, fileBase})
     setCloudMode(on, cfg) {
         cfg = cfg || {};
         if (on) {
             wx.setStorageSync('greenyi_use_cloud', true);
             const merged = Object.assign({}, resolveCloudConfig(), cfg);
+            if (cfg.publicBase) wx.setStorageSync('greenyi_cloud_publicbase', cfg.publicBase);
             if (cfg.env) wx.setStorageSync('greenyi_cloud_env', cfg.env);
             if (cfg.service) wx.setStorageSync('greenyi_cloud_service', cfg.service);
             if (cfg.fileBase) wx.setStorageSync('greenyi_cloud_filebase', cfg.fileBase);
             this.globalData.cloud = merged;
-            if (wx.cloud) wx.cloud.init({ env: merged.env, traceUser: true });
+            if (wx.cloud) { try { wx.cloud.init({ env: merged.env, traceUser: true }); } catch (e) { /* 忽略 */ } }
         } else {
             wx.removeStorageSync('greenyi_use_cloud');
         }

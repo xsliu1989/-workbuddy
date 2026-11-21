@@ -1,7 +1,8 @@
 /**
  * 网络请求封装（本地 / 微信云托管 双通道）
  * - 本地：wx.request 访问 app.globalData.baseUrl
- * - 云托管：wx.cloud.callContainer（免域名备案、免鉴权；容器路径需带 context-path /api）
+ * - 云托管：wx.request 直连云端公网域名（绕开 callContainer 的 Invalid host 问题；路径需带 /api）
+ *   要求：小程序后台把公网域名加入 request 合法域名。
  * - 自动携带 X-Token；统一解析后端 Result {code,message,data}
  */
 
@@ -67,20 +68,21 @@ function requestLocal(app, options, header, settle) {
 
 function requestCloud(app, options, header, settle) {
     const { url, method, data } = options;
-    // callContainer 的 path 是容器内路径，必须带 context-path /api
-    const path = '/api' + url;
-    const ccHeader = Object.assign({}, header, { 'X-WX-SERVICE': app.globalData.cloud.service });
-    wx.cloud.callContainer({
-        config: { env: app.globalData.cloud.env },
-        path: path,
+    // 走公网域名直连：https://<服务域名>/api<url>
+    const base = String(app.globalData.cloud.publicBase || '').replace(/\/$/, '');
+    if (!base) { settle.reject(new Error('云端公网域名未配置（cloud.publicBase）')); return; }
+    wx.request({
+        url: base + '/api' + url,
         method: method,
         data: data || {},
-        header: ccHeader,
+        header: header,
         success(res) {
-            if (res.statusCode !== 200) { settle.reject(new Error('云托管错误(' + res.statusCode + ')')); return; }
+            if (res.statusCode !== 200) { settle.reject(new Error('云端错误(' + res.statusCode + ')：' + JSON.stringify(res.data).slice(0, 100))); return; }
             handleBody(res.data, app, settle.resolve, settle.reject);
         },
-        fail(err) { settle.reject(new Error('云托管调用失败：' + ((err && err.errMsg) || '请检查环境ID/服务名/服务是否已部署'))); }
+        fail(err) {
+            settle.reject(new Error('连不上云端(' + base + ')：' + ((err && err.errMsg) || '请确认公网域名可访问、已加入 request 合法域名')));
+        }
     });
 }
 

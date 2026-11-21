@@ -4,13 +4,12 @@
     <view class="block">
         <view class="block-title">① 当前配置</view>
         <view class="kv"><text class="k">云模式</text><text class="v">{{cfg.useCloud}}</text></view>
-        <view class="kv"><text class="k">环境 ID</text><text class="v">{{cfg.env}}</text></view>
-        <view class="kv"><text class="k">服务名</text><text class="v">{{cfg.service}}</text></view>
-        <view class="kv"><text class="k">fileBase</text><text class="v">{{cfg.fileBase}}</text></view>
+        <view class="kv"><text class="k">公网域名</text><text class="v">{{cfg.publicBase}}</text></view>
+        <view class="kv"><text class="k">图片域名</text><text class="v">{{cfg.fileBase}}</text></view>
     </view>
 
     <view class="block">
-        <view class="block-title">② callContainer 测试（内容列表）</view>
+        <view class="block-title">② 公网域名连通测试</view>
         <view class="result {{item.ok ? 'ok' : 'fail'}}" wx:for="{{tests}}" wx:key="name">
             <view class="result-head">
                 <text class="rname">{{item.name}}</text>
